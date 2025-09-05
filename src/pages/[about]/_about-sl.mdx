@@ -67,6 +67,8 @@ src/
 
 ### 1. Struktura URL-jev
 
+> Primeri predpostavljajo `defaultLang = "en"` in `showDefaultLang = false`. URL-ji se samodejno prilagodijo, ko te nastavitve spremeniš.
+
 | Vzorec strani              | Angleški URL | Slovenski URL                | Opis         |
 | -------------------------- | ------------ | ---------------------------- | ------------ |
 | `[...index].astro`         | `/`          | `/sl/`                       | Domača stran |
@@ -98,35 +100,23 @@ Obstajata dva glavna vzorca za implementacijo dinamičnih strani:
 
 #### Vzorec A: `[...pages].astro`
 
-```javascript
+```ts
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// Enotna datoteka: [...pages].astro
 export function getStaticPaths() {
-    return [
-        // Angleška pot: /pages
-        // [...pages] = "/pages" zajame celoten segment poti
-        // Ustvari URL: /pages
-        { params: { pages: "/pages" }, props: { lang: "en" } },
-        // Slovenska pot: /sl/strani
-        // [...pages] = "sl/strani" zajame jezikovni prefix in lokalizirano pot
-        // Ustvari URL: /sl/strani ("strani" = "pages" v slovenščini)
-        { params: { pages: `/sl/strani` }, props: { lang: "sl" } },
-    ];
+    return buildLocalizedStaticPaths("/pages", ["...pages"]);
 }
 ```
 
 #### Vzorec B: `[pages]/[...index].astro`
 
-```javascript
+```ts
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// Vzorec mape: [pages]/[...index].astro
 export function getStaticPaths() {
-    return [
-        // Angleška pot: /pages
-        // [pages]/[...index.astro] zajame celoten segment poti
-        // Angleščina: { params: { pages: "pages", index: undefined }, props: { lang: "en" } } → /pages
-        { params: { pages: "pages", index: undefined }, props: { lang: "en" } },
-        // Slovenska pot: sl/strani
-        // [pages]/[...index.astro] zajame celoten segment poti
-        // Slovenščina: { params: { pages: "sl", index: "strani" }, props: { lang: "sl" } } → /sl/strani
-        { params: { pages: "sl", index: "strani" }, props: { lang: "sl" } },
-    ];
+    return buildLocalizedStaticPaths("/pages", ["pages", "...index"]);
 }
 ```
 
@@ -154,11 +144,11 @@ export const routes: Record<string, Record<string, string>> = {
 
 Ta datoteka vsebuje ključne konfiguracije za jezikovno podporo:
 
--   **`languages`** - definira podprte jezike in njihove oznake; tukaj lahko dodate nov jezik
--   **`defaultLang`** - določa privzeti jezik aplikacije (trenutno še ni mogoče dinamično spreminjati)
--   **`showDefaultLang`** - nadzoruje, ali se privzeti jezik prikaže v URL-ju (npr. "/en/" namesto "/")
+-   **`languages`** - definira podprte jezike in njihove oznake; tukaj dodaš nove jezike
+-   **`defaultLang`** - določa privzeti jezik aplikacije; sprememba premakne koren (`/`) na izbrani jezik
+-   **`showDefaultLang`** - določa, ali se privzeti jezik prikaže v URL-jih (`/en/...` namesto `/`)
 
-> **Opomba**: Funkcionalnosti `defaultLang` in `showDefaultLang` še niso popolnoma implementirane in predstavljajo priložnost za prihodnji razvoj.
+Obe nastavitvi sta podprti na straneh, blogu in paginaciji.
 
 ```typescript
 export const languages = {
@@ -166,9 +156,20 @@ export const languages = {
     sl: "Slovenian",
 };
 
-export const defaultLang = "en";
-export const showDefaultLang = false;
+export const defaultLang = "en"; // npr. "sl" za slovenski koren
+export const showDefaultLang = false; // true → vedno s predpono: /en/..., /sl/...
 ```
+
+#### Kako preklopiti privzeti jezik
+
+1. Odpri `src/i18n/ui.ts` in nastavi:
+   - `defaultLang = "sl"` (ali drug jezik)
+   - `showDefaultLang = true | false` glede na to, ali želiš predpono tudi za privzeti jezik
+2. Koren postane:
+   - `/`, ko je `showDefaultLang = false`
+   - `/{defaultLang}/`, ko je `showDefaultLang = true`
+3. Ostalih sprememb ni treba: strani uporabljajo `useTranslatedPath()` v `getStaticPaths()` in se poti prilagodijo samodejno.
+4. Preveri home, about, blog (seznam/objava) in paginacijo ter preklop jezika.
 
 ### 3. `src/i18n/utils.ts` - Pomožne funkcije
 
@@ -212,6 +213,63 @@ Omogoča preklapljanje jezikov ob ohranjanju konteksta trenutne strani:
 ```typescript
 const newUrl = await switchLanguageUrl(Astro.url, "sl");
 ```
+
+## 🧩 Helper: buildLocalizedStaticPaths()
+
+Ustvari lokalizirane vnose za `getStaticPaths()` iz angleške osnovne poti in enostavnega vzorca parametrov. Za vsak jezik prevede osnovno pot, jo razdeli na segmente in jih preslika v Astro parametre.
+
+Podpis:
+
+```ts
+function buildLocalizedStaticPaths(
+  basePath: string,
+  pattern: string[],
+  extraProps?: (lang: string) => Record<string, any>
+): Array<{ params: Record<string, string | undefined>; props: Record<string, any> }>
+```
+
+Pravila vzorca:
+
+- Fiksna imena: "about", "dyn_routing", "subpage2"
+- Zaključno “catch‑all”: predpona `...` in vedno zadnji (npr. "...index", "...subpage1", "...blog")
+- Manjkajoči segmenti postanejo `undefined` (kar Astro pričakuje)
+- Upošteva `defaultLang` in `showDefaultLang`
+
+Primeri:
+
+```ts
+// O nas mapa: [about]/[...index].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/about", ["about", "...index"]);
+}
+
+// Dinamično usmerjanje root: [dyn_routing]/[...index].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/dynamic-routing", ["dyn_routing", "...index"]);
+}
+
+// Dinamično usmerjanje podstran 1: [dyn_routing]/[...subpage1].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/dynamic-routing/subpage-1", ["dyn_routing", "...subpage1"]);
+}
+
+// Dinamično usmerjanje podstran 2 (gnezdeno): [dyn_routing]/[subpage2]/[...index].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/dynamic-routing/subpage-2", ["dyn_routing", "subpage2", "...index"]);
+}
+
+// Blog seznam: [...blog].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/blog", ["...blog"]);
+}
+
+// Opcijsko: dodatni props per jezik
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/services", ["services", "...index"], (lang) => ({ section: "services", lang }));
+}
+```
+
+Opomba (paginacija): paginacijska pot uporabi ta helper za lokalizacijo osnovnega segmenta (npr. `blog-pagination` → `spletni-dnevnik-paginacija`), nato pa preko `paginate()` razširi strani in ohrani i18n obliko URL‑jev.
 
 ### 4. `src/data/navigationData.ts` - Navigacija
 
@@ -359,12 +417,10 @@ export const getStaticPaths = async ({ paginate }) => {
 
 ```astro
 ---
-import { useTranslations } from "@i18n/utils";
+import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
+
 export function getStaticPaths() {
-    return [
-        { params: { pages: "/services" }, props: { lang: "en" } },
-        { params: { pages: "/sl/storitve" }, props: { lang: "sl" } }
-    ];
+    return buildLocalizedStaticPaths("/services", ["services", "...index"]);
 }
 
 const { lang } = Astro.props;
@@ -458,20 +514,27 @@ const translatePath = useTranslatedPath(lang);
 
 ## ❓ Pogosta vprašanja
 
-**Zakaj ne uporabljate privzete Astro i18n funkcionalnosti?**
-Čeprav Astro podpira internacionalizacijo, ne podpira "out of the box" lokalizacije URL-jev (npr. `/about` → `/sl/o-projektu`). Ta projekt implementira popolnoma lokalizirane URL-je z dinamičnimi parametri, kar omogoča popoln nadzor nad strukturo poti in SEO optimizacijo.
+**Zakaj ne uporabite privzetega Astro i18n?**
+
+Astro nima vseh funkcionalnosti za popolnoma lokalizirane segmente URL-jev s povezovanjem vsebine (linked slugi) in natančnim vedenjem predpone (defaultLang/showDefaultLang). Ta projekt uporablja tanek i18n sloj (`routes.ts`, `useTranslatedPath`, `switchLanguageUrl`), ki zagotavlja:
+- Prevedene segmente poti (npr. `/about` → `/o-projektu`)
+- Neobvezno predpono za privzeti jezik
+- Preklop jezika z ohranjanjem konteksta, vključno z blog slugi prek `linkedContent`
 
 **Kako dodam nov jezik?**
 
-1. Dodajte jezik v `src/i18n/ui.ts`
-2. Ustvarite mapo prevodov v `src/locales/[lang]/`
-3. Dodajte preslikave poti v `src/i18n/routes.ts`
-4. Posodobite `getStaticPaths()` v vseh datotekah strani
+1. Dodaj jezik v `src/i18n/ui.ts` (`languages`).
+2. Dodaj prevodne datoteke v `src/locales/[lang]/...`.
+3. Dodaj preslikave poti v `src/i18n/routes.ts` za segmente, ki jih lokaliziraš.
 
-**Kako deluje preklapljanje jezikov za blog objave?**
-Sistem uporablja `linkedContent` identifikatorje za povezovanje objav med jeziki. Funkcija `switchLanguageUrl()` samodejno najde ustrezno objavo v ciljnem jeziku.
+Ni treba spreminjati datotek strani — vse `getStaticPaths()` uporabljajo `useTranslatedPath()` in samodejno prevzamejo nov jezik.
 
-**Lahko uporabljam relativne poti?**
-Ne, vedno uporabljajte absolutne poti z vodilno poševnico (`/about`, ne `about`). Sistem prevodov se zanaša na dosledno strukturo poti.
+**Kako deluje preklop jezika za blog objave?**
 
-🎯 Ta pristop omogoča popolno lokalizacijo Astro aplikacij z ohranjanjem hitrosti statičnega generiranja in SEO optimizacije.
+Vsaka objava ima `linkedContent` identifikator. `switchLanguageUrl()` z njim poišče ustrezno objavo v ciljnem jeziku, prevede osnovno pot (`blog` ↔ `spletni-dnevnik`) in uporabi pravilno predpono glede na `showDefaultLang`.
+
+**Ali lahko uporabljam relativne poti?**
+
+Uporabi absolutne poti z začetno poševnico (`/about`, ne `about`). Prevajanje poti se opira na dosledne absolutne segmente.
+
+🎯 Ta pristop omogoča popolnoma lokalizirane URL-je, ohranja zmogljivosti statičnega generiranja in zagotavlja SEO prijazne poti.

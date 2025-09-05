@@ -18,24 +18,12 @@ Choose the approach based on your needs:
 **When to use:** Simple pages without subpages  
 **Examples:** `[...index].astro`, `[...blog].astro`, `[...contact].astro`
 
-```javascript
+```ts
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// Single-file catch‑all: [...pages].astro
 export function getStaticPaths() {
-    return [
-        // English route: /pages
-        // [...pages] = "/pages" captures the entire path segment
-        // Creates URL: /pages
-        {
-            params: { pages: "/pages" },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/strani
-        // [...pages] = "sl/strani" captures both language prefix and path
-        // Creates URL: /sl/strani
-        {
-            params: { pages: "/sl/strani" },
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/pages", ["...pages"]);
 }
 ```
 
@@ -45,25 +33,12 @@ export function getStaticPaths() {
 **Examples:** `[about]/[...index].astro`, `[services]/[...index].astro`
 **Advantages:** Organized structure, easier maintenance
 
-```javascript
+```ts
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// Folder pattern: [pages]/[...index].astro
 export function getStaticPaths() {
-    return [
-        // English route: /pages
-        // Since this file is in [pages] folder, the [pages] param becomes "pages"
-        // [...index] = undefined means no additional URL segments after /pages
-        {
-            params: { pages: "pages", index: undefined },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/strani
-        // [pages] = "sl" acts as language prefix in URL
-        // [...index] = "strani" captures the localized page name after /sl/
-        // This creates the final URL: /sl/strani
-        {
-            params: { pages: "sl", index: "strani" },
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/pages", ["pages", "...index"]);
 }
 ```
 
@@ -71,7 +46,22 @@ export function getStaticPaths() {
 
 ## ⚠️ CRITICAL - Synchronization
 
-> **If you set a Slovenian URL in `getStaticPaths()`, you MUST also add it to `routes.ts`!**
+> Ensure any localized segments (e.g., `pages → strani`) exist in `routes.ts`. `useTranslatedPath()` relies on these mappings.
+
+---
+
+## 🔄 Flipping default language
+
+You can switch the root language without touching your page files:
+
+1. In `src/i18n/ui.ts`, set:
+    - `defaultLang = "sl"` (or your target)
+    - `showDefaultLang = true | false` (include prefix for the default language)
+2. Root becomes `/` (when `showDefaultLang = false`) or `/{defaultLang}/` (when `true`).
+3. All page URLs adapt automatically because `getStaticPaths()` uses `useTranslatedPath()`.
+4. Verify home, about, pages, and navigation paths.
+
+Tip: Use `useTranslatedPath(lang)("/pages")` in examples to avoid hard-coded localized segments.
 
 ---
 
@@ -85,22 +75,13 @@ Let's add a new page `/services` → `/sl/storitve`:
 
 ### Step 2: Configure getStaticPaths
 
-```javascript
-import { useTranslations } from "@i18n/utils";
+```ts
+import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
 import Base from "@layouts/Base.astro";
 import "@styles/markdown.css";
 
 export function getStaticPaths() {
-    return [
-        {
-            params: { services: "services", index: undefined },
-            props: { lang: "en" },
-        },
-        {
-            params: { services: "sl", index: "storitve" },  // ← "storitve"
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/services", ["services", "...index"]);
 }
 
 const { lang } = Astro.props;
@@ -203,6 +184,8 @@ const navigationData = [
 
 ## 🎯 Final Result
 
+Assuming `defaultLang = "en"` and `showDefaultLang = false`:
+
 | Language             | URL               | Works |
 | -------------------- | ----------------- | ----- |
 | 🇬🇧 English           | `/services`       | ✅    |
@@ -212,27 +195,3 @@ const navigationData = [
 | 🍞 Breadcrumbs       | Shows path        | ✅    |
 
 **Congratulations! New page successfully added! 🎉**
-
----
-
-## Common Mistake
-
-❌ **Wrong:**
-
-```javascript
-// getStaticPaths
-params: { pages: "sl", index: "strani" }
-
-// routes.ts
-pages: "stran"  // ← Different name!
-```
-
-✅ **Correct:**
-
-```javascript
-// getStaticPaths
-params: { pages: "sl", index: "strani" }
-
-// routes.ts
-pages: "strani"  // ← Same name!
-```

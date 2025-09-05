@@ -1,24 +1,38 @@
 ---
 //Imports
-import { useTranslations } from "@i18n/utils";
+import {
+    useTranslations,
+    useTranslatedPath,
+    buildLocalizedStaticPaths,
+} from "@i18n/utils";
+import { defaultLang, showDefaultLang } from "@i18n/ui";
 import Base from "@layouts/Base.astro";
 
 // Get current language from URL
+// Generate localized home routes for all languages.
+// Pattern: ["...index"] maps the translated home path to the catch‑all param expected by [...index].astro.
+// If showDefaultLang is true, we also add the bare "/" entry which redirects to the default language root.
 export function getStaticPaths() {
-    return [
-        {
+    const entries = buildLocalizedStaticPaths("/", ["...index"]);
+
+    if (showDefaultLang) {
+        const translatePath = useTranslatedPath(defaultLang as any);
+        const target = translatePath("/");
+        entries.push({
             params: { index: "/" },
-            props: { lang: "en" },
-        },
-        {
-            params: { index: `sl/` },
-            props: { lang: "sl" },
-        },
-    ];
+            props: { lang: defaultLang, redirectTo: target },
+        } as any);
+    }
+
+    return entries;
 }
 
 // Props
-const { lang } = Astro.props;
+const { lang, redirectTo } = Astro.props;
+
+if (redirectTo) {
+    return Astro.redirect(redirectTo);
+}
 
 // Translations
 const t = useTranslations(lang);

@@ -6,6 +6,9 @@ import Base from "@layouts/Base.astro";
 import { Image } from "astro:assets";
 import { formatDate } from "@utils/utils";
 import "@styles/markdown.css";
+import { useTranslatedPath } from "@i18n/utils";
+import { languages, defaultLang, showDefaultLang } from "@i18n/ui";
+import { routes } from "@i18n/routes";
 
 // Get current language from URL and generate paths for each blog post
 export const getStaticPaths = (async () => {
@@ -13,38 +16,41 @@ export const getStaticPaths = (async () => {
     const posts = await getCollection("blog", (entry) => !entry.data.isDraft);
     const authorsRaw = await getCollection("authors");
 
-    // Define language configurations
-    const langConfigs = {
-        en: { prefix: "en/", blogPath: "/blog" },
-        sl: { prefix: "sl/", blogPath: "/sl/spletni-dnevnik" },
-    };
+    // Translate a base route name for a given language
+    const tr = (key: string, code: string) => routes[code]?.[key] ?? key;
 
-    // Create paths for each post in each language
-    const createPath = (post, lang, blogPath) => {
-        const author = authorsRaw.find((a) => a.id === post.data.author.id);
-        const localizedAuthor = author && {
-            ...author,
-            data: {
-                ...author.data,
-                position:
-                    author.data.position?.[lang] ??
-                    author.data.position?.en ??
-                    "",
-            },
-        };
+    return Object.keys(languages).flatMap((code) => {
+        const translatePath = useTranslatedPath(code as any);
+        const baseList = translatePath("/blog"); // e.g. /blog, /sl/spletni-dnevnik, /en/blog
+        const segs = baseList.split("/").filter(Boolean);
+        const isRoot = !showDefaultLang && code === defaultLang;
+        const blogSeg = isRoot ? tr("blog", code) : segs[0];
+        const listRest = isRoot ? undefined : segs.slice(1).join("/");
 
-        return {
-            params: { blog: blogPath, slug: post.id.split("/")[1] },
-            props: { post, lang, author: localizedAuthor },
-        };
-    };
+        return posts
+            .filter((post) => post.id.startsWith(`${code}/`))
+            .map((post) => {
+                const slug = post.id.split("/")[1];
+                const author = authorsRaw.find((a) => a.id === post.data.author.id);
+                const localizedAuthor = author && {
+                    ...author,
+                    data: {
+                        ...author.data,
+                        position:
+                            author.data.position?.[code] ?? author.data.position?.en ?? "",
+                    },
+                };
 
-    // Generate and return all paths
-    return Object.entries(langConfigs).flatMap(([lang, { prefix, blogPath }]) =>
-        posts
-            .filter((post) => post.id.startsWith(prefix))
-            .map((post) => createPath(post, lang, blogPath))
-    );
+                // Params shape for [blog]/[...slug]
+                // - Root language: blog = translated blog segment, slug = post slug
+                // - Prefixed languages: blog = lang code, slug = "<translated blog>/<postSlug>"
+                const params = isRoot
+                    ? { blog: blogSeg, slug }
+                    : { blog: segs[0], slug: `${listRest}/${slug}` };
+
+                return { params, props: { post, lang: code, author: localizedAuthor } };
+            });
+    });
 }) satisfies GetStaticPaths;
 
 // Props

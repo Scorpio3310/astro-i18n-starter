@@ -67,6 +67,8 @@ src/
 
 ### 1. URL Structure
 
+> Examples assume `defaultLang = "en"` and `showDefaultLang = false`. These URLs adapt automatically when you change these settings.
+
 | Page Pattern               | English URL  | Slovenian URL                | Description |
 | -------------------------- | ------------ | ---------------------------- | ----------- |
 | `[...index].astro`         | `/`          | `/sl/`                       | Home page   |
@@ -98,35 +100,23 @@ There are two main patterns for implementing dynamic pages:
 
 #### Pattern A: `[...pages].astro`
 
-```javascript
+```ts
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// Single-file: [...pages].astro
 export function getStaticPaths() {
-    return [
-        // English path: /pages
-        // [...pages] = "/pages" captures the entire path segment
-        // Creates URL: /pages
-        { params: { pages: "/pages" }, props: { lang: "en" } },
-        // Slovenian path: /sl/strani
-        // [...pages] = "sl/strani" captures language prefix and localized path
-        // Creates URL: /sl/strani ("strani" = "pages" in Slovenian)
-        { params: { pages: `/sl/strani` }, props: { lang: "sl" } },
-    ];
+    return buildLocalizedStaticPaths("/pages", ["...pages"]);
 }
 ```
 
 #### Pattern B: `[pages]/[...index].astro`
 
-```javascript
+```ts
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// Folder pattern: [pages]/[...index].astro
 export function getStaticPaths() {
-    return [
-        // English path: /pages
-        // [pages]/[...index.astro] captures the entire path segment
-        // English: { params: { pages: "pages", index: undefined }, props: { lang: "en" } } → /pages
-        { params: { pages: "pages", index: undefined }, props: { lang: "en" } },
-        // Slovenian path: sl/strani
-        // [pages]/[...index.astro] captures the entire path segment
-        // Slovenian: { params: { pages: "sl", index: "strani" }, props: { lang: "sl" } } → /sl/strani
-        { params: { pages: "sl", index: "strani" }, props: { lang: "sl" } },
-    ];
+    return buildLocalizedStaticPaths("/pages", ["pages", "...index"]);
 }
 ```
 
@@ -141,9 +131,11 @@ export const routes: Record<string, Record<string, string>> = {
     sl: {
         about: "o-projektu",
         blog: "spletni-dnevnik",
-        services: "storitve",
+        "dynamic-routing": "dinamicno-usmerjanje",
+        "blog-pagination": "spletni-dnevnik-paginacija",
         pages: "strani",
-        contact: "contact",
+        "subpage-1": "podstran-1",
+        "subpage-2": "podstran-2",
     },
 };
 ```
@@ -155,10 +147,10 @@ export const routes: Record<string, Record<string, string>> = {
 This file contains key configurations for language support:
 
 -   **`languages`** - defines supported languages and their labels; add new languages here
--   **`defaultLang`** - sets the default application language (currently not dynamically changeable)
--   **`showDefaultLang`** - controls whether the default language appears in URLs (e.g., "/en/" instead of "/")
+-   **`defaultLang`** - sets the default application language; flipping this moves the root (`/`) to that language
+-   **`showDefaultLang`** - toggles whether the default language appears in URLs (e.g., `/en/` instead of `/`)
 
-> **Note**: The `defaultLang` and `showDefaultLang` functionalities are not fully implemented and represent opportunities for future development.
+These are fully supported across pages, blog, and pagination.
 
 ```typescript
 export const languages = {
@@ -166,9 +158,20 @@ export const languages = {
     sl: "Slovenian",
 };
 
-export const defaultLang = "en";
-export const showDefaultLang = false;
+export const defaultLang = "en"; // set to "sl" to make Slovenian the root
+export const showDefaultLang = false; // true → always prefix: /en/..., /sl/...
 ```
+
+#### How to flip the default language
+
+1. Open `src/i18n/ui.ts` and set:
+   - `defaultLang = "sl"` (or your new default)
+   - `showDefaultLang = true | false` depending on whether you want a prefix for the default language
+2. The root becomes:
+   - `/` when `showDefaultLang = false`
+   - `/{defaultLang}/` when `showDefaultLang = true`
+3. No other changes are needed: all pages use `useTranslatedPath()` in `getStaticPaths()` so URLs adapt automatically.
+4. Sanity check a few URLs (home, about, blog list/post, pagination) and the language switcher.
 
 ### 3. `src/i18n/utils.ts` - Utility Functions
 
@@ -212,6 +215,63 @@ Enables language switching while preserving current page context:
 ```typescript
 const newUrl = await switchLanguageUrl(Astro.url, "sl");
 ```
+
+## 🧩 Helper: buildLocalizedStaticPaths()
+
+Generates localized `getStaticPaths()` entries from an English base path and a simple param pattern. It translates the base path for each language, splits it into segments, and maps those segments into Astro route params.
+
+Signature:
+
+```ts
+function buildLocalizedStaticPaths(
+  basePath: string,
+  pattern: string[],
+  extraProps?: (lang: string) => Record<string, any>
+): Array<{ params: Record<string, string | undefined>; props: Record<string, any> }>
+```
+
+Pattern rules:
+
+- Fixed param names: "about", "dyn_routing", "subpage2"
+- Trailing catch‑all: prefix with `...` and put it last (e.g., "...index", "...subpage1", "...blog")
+- Missing segments become `undefined` automatically (as Astro expects)
+- Respects `defaultLang` and `showDefaultLang`
+
+Examples:
+
+```ts
+// About folder: [about]/[...index].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/about", ["about", "...index"]);
+}
+
+// Dynamic Routing root: [dyn_routing]/[...index].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/dynamic-routing", ["dyn_routing", "...index"]);
+}
+
+// Dynamic Routing subpage 1: [dyn_routing]/[...subpage1].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/dynamic-routing/subpage-1", ["dyn_routing", "...subpage1"]);
+}
+
+// Dynamic Routing subpage 2 (nested): [dyn_routing]/[subpage2]/[...index].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/dynamic-routing/subpage-2", ["dyn_routing", "subpage2", "...index"]);
+}
+
+// Blog listing: [...blog].astro
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/blog", ["...blog"]);
+}
+
+// Optional: extra props per language
+export function getStaticPaths() {
+  return buildLocalizedStaticPaths("/services", ["services", "...index"], (lang) => ({ section: "services", lang }));
+}
+```
+
+Note (pagination): the pagination route uses this helper to resolve the localized base (e.g., `blog-pagination` → `spletni-dnevnik-paginacija`) and then fans out pages with `paginate()` while preserving the i18n URL shape.
 
 ### 4. `src/data/navigationData.ts` - Navigation
 
@@ -361,12 +421,10 @@ export const getStaticPaths = async ({ paginate }) => {
 
 ```astro
 ---
-import { useTranslations } from "@i18n/utils";
+import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
+
 export function getStaticPaths() {
-    return [
-        { params: { pages: "/services" }, props: { lang: "en" } },
-        { params: { pages: "/sl/storitve" }, props: { lang: "sl" } }
-    ];
+    return buildLocalizedStaticPaths("/services", ["services", "...index"]);
 }
 
 const { lang } = Astro.props;
@@ -459,23 +517,27 @@ const translatePath = useTranslatedPath(lang);
 
 ## ❓ Frequently Asked Questions
 
-**Why don't you use Astro's built-in i18n functionality?**
+**Why not use Astro's built-in i18n?**
 
-Although Astro supports internationalization, it doesn't support "out of the box" URL localization (e.g., `/about` → `/sl/o-projektu`). This project implements fully localized URLs with dynamic parameters, enabling complete control over path structure and SEO optimization.
+Astro doesn't provide fully localized, per-segment URLs with content-linked slugs and the precise prefix behavior used here (defaultLang/showDefaultLang + route translations). This project implements a small i18n layer (`routes.ts`, `useTranslatedPath`, `switchLanguageUrl`) that guarantees:
+- Translated route segments (e.g., `/about` → `/o-projektu`)
+- Optional prefix for the default language
+- Language switching that preserves context, including blog slugs via `linkedContent`
 
 **How do I add a new language?**
 
-1. Add the language to `src/i18n/ui.ts`
-2. Create a translation folder in `src/locales/[lang]/`
-3. Add path mappings in `src/i18n/routes.ts`
-4. Update `getStaticPaths()` in all page files
+1. Add the language to `src/i18n/ui.ts` (`languages`).
+2. Create translation files in `src/locales/[lang]/...`.
+3. Add route mappings in `src/i18n/routes.ts` for any segments you localize.
+
+No changes to page files are required — all `getStaticPaths()` use `useTranslatedPath()` and automatically pick up the new language.
 
 **How does language switching work for blog posts?**
 
-The system uses `linkedContent` identifiers to link posts between languages. The `switchLanguageUrl()` function automatically finds the corresponding post in the target language.
+Each post has a `linkedContent` identifier. `switchLanguageUrl()` uses this to find the matching post in the target language, translate the base route (`blog` ↔ `spletni-dnevnik`), and apply the correct prefix depending on `showDefaultLang`.
 
 **Can I use relative paths?**
 
-No, always use absolute paths with a leading slash (`/about`, not `about`). The translation system relies on consistent path structure.
+Use absolute paths with a leading slash (`/about`, not `about`). Path translation relies on consistent absolute segments.
 
-🎯 This approach enables complete localization of Astro applications while maintaining static generation speed and SEO optimization.
+🎯 This approach enables fully localized URLs with static generation performance and predictable SEO-friendly paths.

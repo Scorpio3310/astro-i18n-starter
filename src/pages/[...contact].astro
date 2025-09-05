@@ -1,6 +1,6 @@
 ---
 // Imports
-import { useTranslations } from "@i18n/utils";
+import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
 import Base from "@layouts/Base.astro";
 import Info from "@/components/Info.astro";
 
@@ -8,31 +8,11 @@ import Info from "@/components/Info.astro";
 export const prerender = true; // For production set to false
 
 // Get current language from URL
+// Localize the contact page for all languages.
+// Pattern: ["...contact"] because this file is a single catch‑all at the root level (e.g., "/contact", "/sl/contact").
 export function getStaticPaths() {
-    return [
-        // English route: /contact
-        // [...contact] = "/contact" captures the entire path segment
-        // Creates URL: /contact
-        {
-            params: { contact: "/contact" },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/contact
-        // [...contact] = "sl/contact" captures both language prefix and path
-        // Creates URL: /sl/contact
-        {
-            params: { contact: `/sl/contact` },
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/contact", ["...contact"]);
 }
-
-// Alternative structure:
-// If this file was in [contact] folder and renamed to [...index.astro]
-// it would work like [contact]/[...index.astro] with these route configurations:
-//
-// English:   { params: { contact: "contact", index: undefined }, props: { lang: "en" } } → /contact
-// Slovenian: { params: { contact: "sl", index: "contact" }, props: { lang: "sl" } } → /sl/contact
 
 // Props
 const { lang } = Astro.props;
@@ -70,10 +50,10 @@ if (Astro.request.method === "POST") {
     <section aria-labelledby="contact-title">
         <h1 id="contact-title">{t("contact:title")}</h1>
         <Info lang={lang} message={t("contact:unlocalized")} />
-        <form 
-            name="Contact Form" 
-            method="POST" 
-            role="form" 
+        <form
+            name="Contact Form"
+            method="POST"
+            role="form"
             aria-labelledby="form-heading"
             novalidate
         >
@@ -96,7 +76,13 @@ if (Astro.request.method === "POST") {
                     aria-describedby="name-error"
                     autocomplete="name"
                 />
-                <div id="name-error" class="error-message" role="alert" aria-live="polite"></div>
+                <div
+                    id="name-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
             </div>
 
             <div class="form-field">
@@ -113,7 +99,13 @@ if (Astro.request.method === "POST") {
                     aria-describedby="email-error"
                     autocomplete="email"
                 />
-                <div id="email-error" class="error-message" role="alert" aria-live="polite"></div>
+                <div
+                    id="email-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
             </div>
 
             <div class="form-field">
@@ -128,18 +120,26 @@ if (Astro.request.method === "POST") {
                     placeholder={t("contact:form.placeholder.message")}
                     rows="4"
                     aria-describedby="message-error"
-                    autocomplete="off"
-                ></textarea>
-                <div id="message-error" class="error-message" role="alert" aria-live="polite"></div>
+                    autocomplete="off"></textarea>
+                <div
+                    id="message-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
             </div>
 
-            <button 
-                type="submit"
-                aria-describedby="submit-status"
-            >
+            <button type="submit" aria-describedby="submit-status">
                 {t("contact:form.submit")}
             </button>
-            <div id="submit-status" class="sr-only" role="status" aria-live="polite"></div>
+            <div
+                id="submit-status"
+                class="sr-only"
+                role="status"
+                aria-live="polite"
+            >
+            </div>
         </form>
     </section>
 </Base>

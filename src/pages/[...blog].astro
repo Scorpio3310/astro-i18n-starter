@@ -1,29 +1,16 @@
 ---
 // Imports
 import { getCollection } from "astro:content";
-import { useTranslations, useTranslatedPath } from "@i18n/utils";
+import { useTranslations, useTranslatedPath, buildLocalizedStaticPaths } from "@i18n/utils";
 import { Image } from "astro:assets";
 import { formatDate } from "@utils/utils";
 import Base from "@layouts/Base.astro";
 
 // Get current language from URL
+// Localize the Blog listing page across all languages.
+// Pattern: ["...blog"] because this file is a single catch‑all ([...blog]) at the root path.
 export function getStaticPaths() {
-    return [
-        // English route: /blog
-        // [...blog] = "/blog" captures the entire path segment
-        // Creates URL: /blog
-        {
-            params: { blog: "/blog" },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/spletni-dnevnik
-        // [...blog] = "/sl/spletni-dnevnik" captures both language prefix and localized path
-        // Creates URL: /sl/spletni-dnevnik ("spletni-dnevnik" = "blog" in Slovenian)
-        {
-            params: { blog: "/sl/spletni-dnevnik" },
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/blog", ["...blog"]);
 }
 
 // Alternative structure:

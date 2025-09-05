@@ -1,5 +1,21 @@
 # Astro i18n Starter
 
+> Note about branches: you are viewing the advanced i18n branch.
+
+This README reflects the new branch that introduces a helper-driven approach to URL localization and pagination. The `main` branch remains available for a simpler setup. Choose the branch that best fits your needs:
+
+-   Advanced (this branch: `feat/i18n-routing-helper`): adds `buildLocalizedStaticPaths()` for DRY, localized `getStaticPaths`, integrates i18n with Astro `paginate()`, and improves language switching on blog posts via content linking.
+-   Simple (`main`): a more straightforward variant with fewer moving parts.
+
+To check out this branch locally:
+
+```bash
+git fetch origin
+git checkout feat/i18n-routing-helper
+```
+
+---
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Astro](https://img.shields.io/badge/Astro-5.13-purple.svg)
 
@@ -21,6 +37,7 @@ This project implements a comprehensive internationalization (i18n) system that 
 ✅ **Translation system** integration with namespace support  
 ✅ **Smart language switching** with context preservation  
 ✅ **Blog system** with multilingual posts and pagination  
+✅ **Helper for localized paths** via `buildLocalizedStaticPaths()`  
 ✅ **Component examples** with Svelte 5 integration  
 ✅ **Accessibility features** with proper ARIA attributes  
 ✅ **SEO optimization** with meta tags and keywords
@@ -75,6 +92,19 @@ Visit `http://localhost:4321` to see your multilingual site!
 
 ---
 
+## 🔀 Branch Overview
+
+-   `feat/i18n-routing-helper`:
+    -   `src/i18n/utils.ts` exposes `buildLocalizedStaticPaths(basePath, pattern)` to generate localized `getStaticPaths()` entries for pages, dynamic routes, and catch‑all routes.
+    -   Pagination example `[pagination]/[...page].astro` shows Astro `paginate()` working with translated base segments (e.g., `blog-pagination` → `spletni-dnevnik-paginacija`).
+    -   `switchLanguageUrl()` powers the Language Picker to keep you on the equivalent blog post or page when changing languages, using `linkedContent` in blog frontmatter.
+-   `main` (kept for simpler needs):
+    -   Fewer abstractions, suitable if you prefer explicit per-page setup without the helper.
+
+If you want to keep both approaches, keep both branches and reference this README in this branch only.
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -104,25 +134,19 @@ English:    /about          → src/pages/[about]/[...index].astro
 Slovenian:  /sl/o-projektu  → src/pages/[about]/[...index].astro
 ```
 
-**Route Configuration:**
-
-```typescript
-// src/i18n/routes.ts
-export const routes = {
-    en: { about: "about", blog: "blog" },
-    sl: { about: "o-projektu", blog: "spletni-dnevnik" },
-};
-```
-
-**Dynamic Path Generation:**
+**Dynamic Path Generation (with helper):**
 
 ```astro
+---
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// [about]/[...index].astro
 export function getStaticPaths() {
-  return [
-    { params: { about: "about" }, props: { lang: "en" } },
-    { params: { about: "/sl/o-projektu" }, props: { lang: "sl" } }
-  ];
+  // Base path in English + a simple param pattern
+  // Pattern: ["about", "...index"] → first segment fills [about], rest fills [...index]
+  return buildLocalizedStaticPaths("/about", ["about", "...index"]);
 }
+---
 ```
 
 ---
@@ -135,6 +159,24 @@ export function getStaticPaths() {
 4. **Update navigation**: Modify `src/data/navigationData.ts`
 
 Detailed documentation with examples is available in the demo site.
+
+---
+
+## 🔁 Migrating From `main` to This Branch
+
+1. Add or update route translations in `src/i18n/routes.ts` (e.g., `about`, `blog`, `blog-pagination`, dynamic routing segments).
+2. Replace manual `getStaticPaths()` mapping with `buildLocalizedStaticPaths()` in localized pages:
+    - Example patterns:
+        - `"/about"` with `["about", "...index"]` → `[about]/[...index].astro`
+        - `"/dynamic-routing"` with `["dyn_routing", "...index"]` → `[dyn_routing]/[...index].astro`
+        - `"/dynamic-routing/subpage-2"` with `["dyn_routing", "subpage2", "...index"]` → `[dyn_routing]/[subpage2]/[...index].astro`
+3. Pagination: use the example in `src/pages/[pagination]/[...page].astro` that combines `buildLocalizedStaticPaths()` with Astro `paginate()` while preserving translated base segments.
+4. Language switching: ensure blog posts that are equivalents across languages share a `linkedContent` value in frontmatter so `switchLanguageUrl()` can map slugs across languages.
+5. Verify `src/i18n/ui.ts` settings:
+    - `defaultLang` and `showDefaultLang` drive whether the default language has a URL prefix and what the root `/` resolves to.
+6. Navigation: update `src/data/navigationData.ts` to use English base `href` values (the helper translates them per language at runtime).
+
+Tip: After migrating, sanity‑check home, about, blog listing, a few posts, pagination pages, and the language picker in both languages.
 
 ---
 
@@ -168,15 +210,6 @@ pnpm run preview
 ```
 
 The site generates static files optimized for any hosting provider (Netlify, Vercel, Cloudflare Pages, etc.).
-
----
-
-## 📋 Roadmap
-
-Future enhancements being considered:
-
--   [ ] **Dynamic default language** - Environment-based default language switching
--   [ ] **Optional language prefix** - Support for `/en/` URLs when needed
 
 ---
 

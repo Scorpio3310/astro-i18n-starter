@@ -18,24 +18,12 @@ Izberi pristop glede na potrebe:
 **Kdaj uporabi:** Preproste strani brez podstrani  
 **Primeri:** `[...index].astro`, `[...blog].astro`, `[...contact].astro`
 
-```javascript
+```ts
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// Enotni catch‑all: [...pages].astro
 export function getStaticPaths() {
-    return [
-        // English route: /pages
-        // [...pages] = "/pages" captures the entire path segment
-        // Creates URL: /pages
-        {
-            params: { pages: "/pages" },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/strani
-        // [...pages] = "sl/strani" captures both language prefix and path
-        // Creates URL: /sl/strani
-        {
-            params: { pages: "/sl/strani" },
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/pages", ["...pages"]);
 }
 ```
 
@@ -45,31 +33,33 @@ export function getStaticPaths() {
 **Primeri:** `[about]/[...index].astro`, `[services]/[...index].astro`  
 **Prednosti:** Organizirana struktura, lažje vzdrževanje
 
-```javascript
+```ts
+import { buildLocalizedStaticPaths } from "@i18n/utils";
+
+// Vzorec mape: [pages]/[...index].astro
 export function getStaticPaths() {
-    return [
-        // English route: /pages
-        // Since this file is in [pages] folder, the [pages] param becomes "pages"
-        // [...index] = undefined means no additional URL segments after /pages
-        {
-            params: { pages: "pages", index: undefined },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/strani
-        // [pages] = "sl" acts as language prefix in URL
-        // [...index] = "strani" captures the localized page name after /sl/
-        // This creates the final URL: /sl/strani
-        {
-            params: { pages: "sl", index: "strani" },
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/pages", ["pages", "...index"]);
 }
 ```
 
 > ⚠️ KRITIČNO - Sinhronizacija
 >
-> **Če v `getStaticPaths()` nastaviš slovenski URL, ga MORAŠ dodati tudi v `routes.ts`!**
+> Poskrbi, da so vsi lokalizirani segmenti (npr. `pages → strani`) zapisani v `routes.ts`. `useTranslatedPath()` uporablja te preslikave.
+
+---
+
+## 🔄 Preklop privzetega jezika
+
+Brez spreminjanja datotek strani lahko zamenjaš korenski jezik:
+
+1. V `src/i18n/ui.ts` nastavi:
+    - `defaultLang = "sl"` (ali drug jezik)
+    - `showDefaultLang = true | false` (ali želiš predpono tudi za privzeti jezik)
+2. Koren postane `/` (ko je `showDefaultLang = false`) ali `/{defaultLang}/` (ko je `true`).
+3. Vse poti se samodejno prilagodijo, ker `getStaticPaths()` uporablja `useTranslatedPath()`.
+4. Preveri home, about, pages in navigacijo.
+
+Namig: V primerih uporabi `useTranslatedPath(lang)("/pages")` namesto ročnih lokaliziranih segmentov.
 
 ---
 
@@ -83,27 +73,18 @@ Dodajmo novo stran `/services` → `/sl/storitve`:
 
 ### Korak 2: Nastavi getStaticPaths
 
-```javascript
-import { useTranslations } from "@i18n/utils";
+```ts
+import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
 import Base from "@layouts/Base.astro";
 import "@styles/markdown.css";
 
 export function getStaticPaths() {
-    return [
-        {
-            params: { services: "services", index: undefined },
-            props: { lang: "en" },
-        },
-        {
-            params: { services: "sl", index: "storitve" },  // ← "storitve"
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/services", ["services", "...index"]);
 }
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const { Content } = await import(`./_services-${lang}.mdx`);
+const { Content, frontmatter } = await import(`./_services-${lang}.mdx`);
 ---
 
 <Base
@@ -201,6 +182,8 @@ const navigationData = [
 
 ## 🎯 Končni rezultat
 
+Predpostavka: `defaultLang = "en"` in `showDefaultLang = false`:
+
 | Jezik                | URL            | Deluje |
 | -------------------- | -------------- | ------ |
 | 🇬🇧 Angleščina        | `/services`    | ✅     |
@@ -210,27 +193,3 @@ const navigationData = [
 | 🍞 Breadcrumbs       | Prikaže pot    | ✅     |
 
 **Čestitke! Nova stran je uspešno dodana! 🎉**
-
----
-
-## Pogosta napaka
-
-❌ **Narobe:**
-
-```javascript
-// getStaticPaths
-params: { pages: "sl", index: "strani" }
-
-// routes.ts
-pages: "stran"  // ← Različno ime!
-```
-
-✅ **Pravilno:**
-
-```javascript
-// getStaticPaths
-params: { pages: "sl", index: "strani" }
-
-// routes.ts
-pages: "strani"  // ← Enako ime!
-```

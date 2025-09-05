@@ -5,10 +5,13 @@ import { getCollection } from "astro:content";
 import Base from "@layouts/Base.astro";
 import { Image } from "astro:assets";
 import { formatDate } from "@utils/utils";
-import { useTranslations, useTranslatedPath } from "@i18n/utils";
+import { useTranslations, useTranslatedPath, buildLocalizedStaticPaths } from "@i18n/utils";
 import Pagination from "@components/Pagination.astro";
 
 // Get current language from URL and generate paginated paths for blog listing
+// Localize the pagination base using the helper, then fan-out pages via paginate().
+// We post-process each paginate() result to inject the translated base segment into the
+// catch‑all "page" param for page 1 (and prefix page numbers on subsequent pages).
 export const getStaticPaths = (async ({ paginate }) => {
     // Fetch all blog posts and authors
     const posts = await getCollection("blog", (entry) => !entry.data.isDraft);
@@ -17,26 +20,17 @@ export const getStaticPaths = (async ({ paginate }) => {
     // Posts per page
     const PAGE_SIZE = 4;
 
-    // Language + routing config
-    const langConfigs = [
-        {
-            code: "en" as const,
-            prefix: "en/",
-            pagination: "blog-pagination",
-            page: undefined as string | undefined,
-        },
-        {
-            code: "sl" as const,
-            prefix: "sl/",
-            pagination: "sl",
-            page: "spletni-dnevnik-paginacija",
-        },
-    ];
+    // Resolve translated bases for all languages (e.g.,
+    // root:  /blog-pagination → { pagination: 'blog-pagination', page: undefined }
+    // sl:   /sl/spletni-dnevnik-paginacija → { pagination: 'sl', page: 'spletni-dnevnik-paginacija' }
+    const langConfigs = buildLocalizedStaticPaths("/blog-pagination", ["pagination", "...page"]) as any[];
 
     // Use Astro's paginate() then post-process params to keep your i18n URL shape
-    return langConfigs.flatMap(({ code, prefix, pagination, page }) => {
+    return langConfigs.flatMap(({ params, props }) => {
+        const { pagination, page } = params as { pagination: string; page?: string };
+        const code = (props as any).lang as string;
         const filtered = posts
-            .filter((p) => p.id.startsWith(prefix))
+            .filter((p) => p.id.startsWith(`${code}/`))
             .sort(
                 (a, b) =>
                     new Date(b.data.pubDate).getTime() -

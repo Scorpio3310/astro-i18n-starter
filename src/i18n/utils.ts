@@ -1,4 +1,4 @@
-import { ui, defaultLang, showDefaultLang, type TranslationKey } from "./ui";
+import { ui, languages, defaultLang, showDefaultLang, type TranslationKey } from "./ui";
 import { routes } from "./routes";
 import { getCollection } from "astro:content";
 
@@ -66,11 +66,8 @@ export function useTranslatedPath(lang: keyof typeof ui) {
 
         // Translate each segment individually
         const translatedSegments = segments.map((segment) => {
-            const hasTranslation =
-                defaultLang !== l &&
-                routes[l] !== undefined &&
-                routes[l][segment] !== undefined;
-            return hasTranslation ? routes[l][segment] : segment;
+            const translated = routes[l]?.[segment];
+            return translated ?? segment;
         });
 
         const translatedPath = "/" + translatedSegments.join("/");
@@ -79,6 +76,67 @@ export function useTranslatedPath(lang: keyof typeof ui) {
             ? translatedPath
             : `/${l}${translatedPath}`;
     };
+}
+
+/**
+ * Builds localized `getStaticPaths()` entries for a given English base path by
+ * translating it with `useTranslatedPath(lang)` and mapping the resulting URL
+ * segments into Astro route params according to a simple pattern.
+ *
+ * Pattern syntax:
+ *  - Use plain names (e.g. "about", "dyn_routing", "subpage2") for fixed params
+ *  - Use a leading "..." to mark the last (catch‑all) param (e.g. "...index", "...subpage1")
+ *
+ * Notes:
+ *  - The catch‑all MUST be the last item in the pattern
+ *  - Missing segments automatically become `undefined` (which Astro expects)
+ *  - Works with any `defaultLang` + `showDefaultLang` combination
+ *
+ * Examples:
+ *  - base: "/about", pattern: ["about", "...index"]
+ *      → matches [about]/[...index].astro
+ *  - base: "/dynamic-routing", pattern: ["dyn_routing", "...index"]
+ *      → matches [dyn_routing]/[...index].astro
+ *  - base: "/dynamic-routing/subpage-1", pattern: ["dyn_routing", "...subpage1"]
+ *      → matches [dyn_routing]/[...subpage1].astro
+ *  - base: "/dynamic-routing/subpage-2", pattern: ["dyn_routing", "subpage2", "...index"]
+ *      → matches [dyn_routing]/[subpage2]/[...index].astro
+ */
+export function buildLocalizedStaticPaths(
+    basePath: string,
+    pattern: string[],
+    extraProps?: (lang: string) => Record<string, any>
+) {
+    const langs = Object.keys(languages);
+    return langs.map((code) => {
+        // Translate the English basePath to the target language URL
+        const translatePath = useTranslatedPath(code as any);
+        const full = translatePath(basePath); // e.g. "/about" or "/sl/o-projektu"
+        const segs = full.split("/").filter(Boolean); // split to path segments
+
+        const params: Record<string, string | undefined> = {};
+        for (let i = 0; i < pattern.length; i++) {
+            const raw = pattern[i];
+            const isCatchAll = raw.startsWith("...");
+            const name = isCatchAll ? raw.slice(3) : raw;
+
+            if (i < pattern.length - 1 && !isCatchAll) {
+                // Fixed (non-catch‑all) param: take segment at the same index
+                params[name] = segs[i]; // may be undefined for default language roots
+            } else {
+                // Catch‑all at the end: capture the rest of segments (or undefined)
+                const rest = segs.slice(i).join("/");
+                params[name] = rest || undefined; // Astro expects undefined when nothing to capture
+                break;
+            }
+        }
+
+        return {
+            params,
+            // Provide lang and any extra per‑language props
+            props: { lang: code, ...(extraProps ? extraProps(code) : {}) },
+        };
+    });
 }
 
 /**
@@ -92,15 +150,17 @@ export async function switchLanguageUrl(
     const pathname = currentUrl.pathname;
     const pathParts = pathname.split("/").filter((p) => p);
 
-    // Remove current language prefix if exists
+    // Remove current language prefix if it exists (for both default and non-default)
     const currentLang = getLangFromUrl(currentUrl);
-    if (pathParts[0] === currentLang && currentLang !== defaultLang) {
+    if (pathParts[0] && pathParts[0] in ui) {
         pathParts.shift();
     }
 
     // Handle root page
     if (pathParts.length === 0) {
-        return targetLang === defaultLang ? "/" : `/${targetLang}/`;
+        return !showDefaultLang && targetLang === defaultLang
+            ? "/"
+            : `/${targetLang}/`;
     }
 
     const baseRoute = pathParts[0];
@@ -123,9 +183,8 @@ export async function switchLanguageUrl(
     });
 
     const newPath = translatedSegments.join("/");
-    return targetLang === defaultLang
-        ? `/${newPath}`
-        : `/${targetLang}/${newPath}`;
+    const prefix = !showDefaultLang && targetLang === defaultLang ? "" : `/${targetLang}`;
+    return `${prefix}/${newPath}`;
 }
 
 //---------------------------------- FUNCTIONS ----------------------------------//
@@ -194,7 +253,9 @@ function isBlogRoute(route: string): boolean {
  * Converts language to collection ID format (defaultLang -> "en")
  */
 function getLangCode(lang: string): string {
-    return lang === defaultLang ? "en" : lang;
+    // Content folders use actual language codes (e.g., "en", "sl").
+    // Do not remap defaultLang to "en" so changing defaultLang works seamlessly.
+    return lang;
 }
 
 /**
@@ -221,9 +282,11 @@ async function handleBlogPostTranslation(
             const targetRouteName = translateRouteName(baseRoute, targetLang);
             const targetPath = `/${targetRouteName}/${targetSlug}`;
 
-            return targetLang === defaultLang
-                ? targetPath
-                : `/${targetLang}${targetPath}`;
+            const prefix =
+                !showDefaultLang && targetLang === defaultLang
+                    ? ""
+                    : `/${targetLang}`;
+            return `${prefix}${targetPath}`;
         }
     }
 
@@ -250,7 +313,5 @@ function getOriginalRouteName(routeName: string): string {
  */
 function translateRouteName(routeName: string, targetLang: string): string {
     const originalRoute = getOriginalRouteName(routeName);
-    return targetLang === defaultLang
-        ? originalRoute
-        : routes[targetLang]?.[originalRoute] || originalRoute;
+    return routes[targetLang]?.[originalRoute] || originalRoute;
 }

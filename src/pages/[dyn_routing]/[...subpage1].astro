@@ -1,34 +1,19 @@
 ---
 //Imports
-import { useTranslations } from "@i18n/utils";
+import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
 import Base from "@layouts/Base.astro";
 import "@styles/markdown.css";
 import Counter from "@components/Counter.svelte";
 
 // Get current language from URL
+// Localize Dynamic Routing → Subpage 1 across all languages.
+// Pattern: ["dyn_routing", "...subpage1"] → first segment fills [dyn_routing], the rest fills [...subpage1].
 export function getStaticPaths() {
-    return [
-        // English route: /dynamic-routing/subpage-1
-        // [...subpage1] = "subpage-1" captures the specific subpage
-        // This creates the final URL: /dynamic-routing/subpage-1
-        {
-            params: {
-                dyn_routing: "/dynamic-routing",
-                subpage1: "subpage-1",
-            },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/dinamicno-usmerjanje/podstran-1
-        // [...subpage1] = "podstran-1" captures the localized subpage name
-        // This creates the final URL: /sl/dinamicno-usmerjanje/podstran-1
-        {
-            params: {
-                dyn_routing: "/sl/dinamicno-usmerjanje",
-                subpage1: "podstran-1",
-            },
-            props: { lang: "sl" },
-        },
-    ];
+    // Map translated "/dynamic-routing/subpage-1" to params of [dyn_routing]/[...subpage1].astro
+    return buildLocalizedStaticPaths("/dynamic-routing/subpage-1", [
+        "dyn_routing",
+        "...subpage1",
+    ]);
 }
 
 // Props

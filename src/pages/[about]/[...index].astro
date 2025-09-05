@@ -1,27 +1,14 @@
 ---
 //Imports
 import Base from "@layouts/Base.astro";
+import { buildLocalizedStaticPaths } from "@i18n/utils";
 import "@styles/markdown.css";
 
 // Get current language from URL
+// Localize the About page folder route.
+// Pattern: ["about", "...index"] → first segment fills [about], remaining (if any) fills [...index].
 export function getStaticPaths() {
-    return [
-        // English route: /about
-        // Since this file is in [about] folder, the [about] param becomes "about"
-        // [...index] = undefined means no additional URL segments after /about
-        {
-            params: { about: "about", index: undefined },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/o-projektu
-        // [about] = "sl" acts as language prefix in URL
-        // [...index] = "o-projektu" captures the localized page name after /sl/
-        // This creates the final URL: /sl/o-projektu
-        {
-            params: { about: "sl", index: "o-projektu" },
-            props: { lang: "sl" },
-        },
-    ];
+    return buildLocalizedStaticPaths("/about", ["about", "...index"]);
 }
 
 // Props

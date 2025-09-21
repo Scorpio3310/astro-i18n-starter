@@ -32,12 +32,12 @@
     },
     "dependencies": {
         "@astrojs/mdx": "^4.3.5",
-        "@astrojs/sitemap": "^3.5.1",
+        "@astrojs/sitemap": "^3.6.0",
         "@astrojs/svelte": "^7.1.1",
         "@tailwindcss/vite": "^4.1.13",
-        "astro": "^5.13.7",
-        "sharp": "^0.34.3",
-        "svelte": "^5.38.10",
+        "astro": "^5.13.9",
+        "sharp": "^0.34.4",
+        "svelte": "^5.39.3",
         "tailwindcss": "^4.1.13",
         "typescript": "^5.9.2"
     }

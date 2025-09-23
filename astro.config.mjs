@@ -8,13 +8,13 @@ import svelte from "@astrojs/svelte";
 // https://astro.build/config
 export default defineConfig({
     // UPDATE THIS FOR PRODUCTION – This will also be used in the sitemap
-    site: process.env.PRODUCTION_DOMAIN || "http://localhost:4321",
+    site:  "http://lclrlab.github.io",
     integrations: [
         mdx(),
         sitemap({
             customPages: [
-                process.env.PRODUCTION_DOMAIN || "http://localhost:4321", // home page - priority 1.0
-                (process.env.PRODUCTION_DOMAIN || "http://localhost:4321") +
+                 "http://lclrlab.github.io", // home page - priority 1.0
+                 "http://lclrlab.github.io") +
                     "/sl/", // Slovenian home - priority 1.0
             ],
             changefreq: "monthly",

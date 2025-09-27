@@ -35,7 +35,7 @@
                     "p": "Full support for <span>URL localization</span>, improving both SEO and the user experience."
                 },
                 {
-                    "p": "Includes the latest versions of <span>Astro (v5.13)</span> and <span>Tailwind (v4)</span>, ensuring stability and long-term support."
+                    "p": "Includes the latest versions of <span>Astro (v5.14)</span> and <span>Tailwind (v4)</span>, ensuring stability and long-term support."
                 },
                 {
                     "p": "Allows <span>language switching</span> without losing context — the user stays on the same page or blog post when changing languages."

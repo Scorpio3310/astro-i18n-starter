@@ -1,7 +1,7 @@
 # Astro i18n Starter
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-5.13-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-5.14-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 
@@ -47,7 +47,7 @@ This project implements a comprehensive internationalization (i18n) system that 
 
 ## 🛠️ Tech Stack
 
--   **Framework**: [Astro 5.13](https://astro.build/) - Static site generator
+-   **Framework**: [Astro 5.14](https://astro.build/) - Static site generator
 -   **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
 -   **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
 -   **Content**: Astro Content Collections - Type-safe markdown content

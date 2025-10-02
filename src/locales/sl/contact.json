@@ -8,6 +8,7 @@
     "subtitle": "Pišite nam",
     "description": "Imate vprašanje, idejo za projekt ali pa nam želite samo reči pozdravljeni? Veseli bomo vašega sporočila. Pišite nam in odgovorili vam bomo v najkrajšem možnem času.",
     "unlocalized": "Primer strani: URL tukaj ni lokalizirani in ostaneje enak v vseh jezikih.",
+    "server": "Ta stran je upodabljana na strežniku (SSR) in ni statično generirana. To omogoča dinamično vsebino, kot je obdelava obrazcev ali pridobivanje podatkov v realnem času.",
     "form": {
         "name": "Vaše ime",
         "email": "E-poštni naslov",

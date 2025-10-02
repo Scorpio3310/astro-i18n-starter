@@ -1,4 +1,10 @@
 ---
+// Disable prerendering to allow this page to be used with Astro.rewrite()
+// When output mode is 'server', rewrite() can only target dynamic (non-prerendered) pages
+// This allows other dynamic routes to rewrite to this 404 page while preserving the original URL
+// Without this, attempting to rewrite to a static 404 page would throw a build error
+export const prerender = false;
+
 import {
     useTranslatedPath,
     getLangFromUrl,

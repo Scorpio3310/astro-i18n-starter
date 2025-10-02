@@ -1,41 +1,29 @@
 ---
+export const prerender = false;
+
 // Imports
 import { useTranslations } from "@i18n/utils";
 import Base from "@layouts/Base.astro";
 import Info from "@/components/Info.astro";
 
-// Prerender
-export const prerender = true; // For production set to false
+// Get current language from URL path
+// With prerender: false (SSR mode), we access params directly from Astro.params instead of getStaticPaths()
+// The [...contact] rest parameter captures the entire path after the base URL:
+// English route: /contact → contact = "contact"
+// Slovenian route: /sl/kontakt → contact = "sl/contact"
+const contactPath = Astro.params.contact || "";
 
-// Get current language from URL
-export function getStaticPaths() {
-    return [
-        // English route: /contact
-        // [...contact] = "/contact" captures the entire path segment
-        // Creates URL: /contact
-        {
-            params: { contact: "/contact" },
-            props: { lang: "en" },
-        },
-        // Slovenian route: /sl/contact
-        // [...contact] = "sl/contact" captures both language prefix and path
-        // Creates URL: /sl/contact
-        {
-            params: { contact: `/sl/contact` },
-            props: { lang: "sl" },
-        },
-    ];
+// Validate allowed paths - show 404 for invalid routes
+// Using Astro.rewrite() instead of redirect() to preserve the original URL in browser
+// This provides better UX by showing 404 content at /contact123 instead of redirecting to /404
+const validPaths = ["contact", "sl/contact"];
+if (!validPaths.includes(contactPath)) {
+    return Astro.rewrite("/404");
 }
 
-// Alternative structure:
-// If this file was in [contact] folder and renamed to [...index.astro]
-// it would work like [contact]/[...index.astro] with these route configurations:
-//
-// English:   { params: { contact: "contact", index: undefined }, props: { lang: "en" } } → /contact
-// Slovenian: { params: { contact: "sl", index: "contact" }, props: { lang: "sl" } } → /sl/contact
-
-// Props
-const { lang } = Astro.props;
+// Determine language from path structure
+// Slovenian URLs start with "sl/" prefix, English URLs have no language prefix
+const lang = contactPath.startsWith("sl/") ? "sl" : "en";
 
 // Translations
 const t = useTranslations(lang);
@@ -69,11 +57,13 @@ if (Astro.request.method === "POST") {
 >
     <section aria-labelledby="contact-title">
         <h1 id="contact-title">{t("contact:title")}</h1>
+        <Info lang={lang} message={t("contact:server")} />
         <Info lang={lang} message={t("contact:unlocalized")} />
-        <form 
-            name="Contact Form" 
-            method="POST" 
-            role="form" 
+
+        <form
+            name="Contact Form"
+            method="POST"
+            role="form"
             aria-labelledby="form-heading"
             novalidate
         >
@@ -96,7 +86,13 @@ if (Astro.request.method === "POST") {
                     aria-describedby="name-error"
                     autocomplete="name"
                 />
-                <div id="name-error" class="error-message" role="alert" aria-live="polite"></div>
+                <div
+                    id="name-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
             </div>
 
             <div class="form-field">
@@ -113,7 +109,13 @@ if (Astro.request.method === "POST") {
                     aria-describedby="email-error"
                     autocomplete="email"
                 />
-                <div id="email-error" class="error-message" role="alert" aria-live="polite"></div>
+                <div
+                    id="email-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
             </div>
 
             <div class="form-field">
@@ -128,18 +130,26 @@ if (Astro.request.method === "POST") {
                     placeholder={t("contact:form.placeholder.message")}
                     rows="4"
                     aria-describedby="message-error"
-                    autocomplete="off"
-                ></textarea>
-                <div id="message-error" class="error-message" role="alert" aria-live="polite"></div>
+                    autocomplete="off"></textarea>
+                <div
+                    id="message-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
             </div>
 
-            <button 
-                type="submit"
-                aria-describedby="submit-status"
-            >
+            <button type="submit" aria-describedby="submit-status">
                 {t("contact:form.submit")}
             </button>
-            <div id="submit-status" class="sr-only" role="status" aria-live="polite"></div>
+            <div
+                id="submit-status"
+                class="sr-only"
+                role="status"
+                aria-live="polite"
+            >
+            </div>
         </form>
     </section>
 </Base>

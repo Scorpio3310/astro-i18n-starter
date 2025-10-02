@@ -31,6 +31,7 @@
         "astro": "astro"
     },
     "dependencies": {
+        "@astrojs/cloudflare": "^12.6.9",
         "@astrojs/mdx": "^4.3.6",
         "@astrojs/sitemap": "^3.6.0",
         "@astrojs/svelte": "^7.2.0",

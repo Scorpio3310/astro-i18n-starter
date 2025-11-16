@@ -32,14 +32,14 @@
     },
     "dependencies": {
         "@astrojs/cloudflare": "^12.6.10",
-        "@astrojs/mdx": "^4.3.7",
+        "@astrojs/mdx": "^4.3.10",
         "@astrojs/sitemap": "^3.6.0",
-        "@astrojs/svelte": "^7.2.0",
-        "@tailwindcss/vite": "^4.1.14",
-        "astro": "^5.14.6",
-        "sharp": "^0.34.4",
-        "svelte": "^5.41.0",
-        "tailwindcss": "^4.1.14",
+        "@astrojs/svelte": "^7.2.2",
+        "@tailwindcss/vite": "^4.1.17",
+        "astro": "^5.15.8",
+        "sharp": "^0.34.5",
+        "svelte": "^5.43.7",
+        "tailwindcss": "^4.1.17",
         "typescript": "^5.9.3"
     }
 }

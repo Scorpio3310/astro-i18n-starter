@@ -1,7 +1,7 @@
 # Astro i18n Starter
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-5.14-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-5.15-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 
@@ -29,16 +29,16 @@ Since Astro doesn't have built-in URL localization out of the box, this starter 
 
 This project implements a comprehensive internationalization (i18n) system that includes:
 
-- ✅ **SEO-friendly URLs** in multiple languages (`/about` → `/sl/o-projektu`)
-- ✅ **Static & SSR hybrid** - Static generation at build time with SSR support for dynamic routes
-- ✅ **Language-specific content** loading and management
-- ✅ **Translation system** integration with namespace support
-- ✅ **Smart language switching** with context preservation
-- ✅ **Blog system** with multilingual posts and pagination
-- ✅ **Dynamic routes example** - Contact page demonstrates SSR with form handling
-- ✅ **Component examples** with Svelte 5 integration
-- ✅ **Accessibility features** with proper ARIA attributes
-- ✅ **SEO optimization** with meta tags and keywords
+-   ✅ **SEO-friendly URLs** in multiple languages (`/about` → `/sl/o-projektu`)
+-   ✅ **Static & SSR hybrid** - Static generation at build time with SSR support for dynamic routes
+-   ✅ **Language-specific content** loading and management
+-   ✅ **Translation system** integration with namespace support
+-   ✅ **Smart language switching** with context preservation
+-   ✅ **Blog system** with multilingual posts and pagination
+-   ✅ **Dynamic routes example** - Contact page demonstrates SSR with form handling
+-   ✅ **Component examples** with Svelte 5 integration
+-   ✅ **Accessibility features** with proper ARIA attributes
+-   ✅ **SEO optimization** with meta tags and keywords
 
 **Perfect for:** Projects requiring complete URL localization alongside content translation
 
@@ -48,7 +48,7 @@ This project implements a comprehensive internationalization (i18n) system that 
 
 ## 🛠️ Tech Stack
 
--   **Framework**: [Astro 5.14](https://astro.build/) - Static site generator
+-   **Framework**: [Astro 5.15](https://astro.build/) - Static site generator
 -   **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
 -   **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
 -   **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS

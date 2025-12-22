@@ -17,7 +17,7 @@ git checkout feat/i18n-routing-helper
 ---
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-5.15-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-5.16-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 
@@ -50,7 +50,7 @@ This project implements a comprehensive internationalization (i18n) system that 
 
 ## 🛠️ Tech Stack
 
--   **Framework**: [Astro 5.15](https://astro.build/) - Static site generator
+-   **Framework**: [Astro 5.16](https://astro.build/) - Static site generator
 -   **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
 -   **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
 -   **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS

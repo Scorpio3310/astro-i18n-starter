@@ -4,8 +4,8 @@
 
 This README reflects the new branch that introduces a helper-driven approach to URL localization and pagination. The `main` branch remains available for a simpler setup. Choose the branch that best fits your needs:
 
--   Advanced (this branch: `feat/i18n-routing-helper`): adds `buildLocalizedStaticPaths()` for DRY, localized `getStaticPaths`, integrates i18n with Astro `paginate()`, and improves language switching on blog posts via content linking.
--   Simple (`main`): a more straightforward variant with fewer moving parts.
+- Advanced (this branch: `feat/i18n-routing-helper`): adds `buildLocalizedStaticPaths()` for DRY, localized `getStaticPaths`, integrates i18n with Astro `paginate()`, and improves language switching on blog posts via content linking.
+- Simple (`main`): a more straightforward variant with fewer moving parts.
 
 To check out this branch locally:
 
@@ -17,7 +17,7 @@ git checkout feat/i18n-routing-helper
 ---
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-5.16-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-5.17-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 
@@ -50,12 +50,12 @@ This project implements a comprehensive internationalization (i18n) system that 
 
 ## 🛠️ Tech Stack
 
--   **Framework**: [Astro 5.16](https://astro.build/) - Static site generator
--   **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
--   **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
--   **Content**: Astro Content Collections - Type-safe markdown content
--   **Images**: Astro Assets - Optimized image processing
+- **Framework**: [Astro 5.17](https://astro.build/) - Static site generator
+- **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
+- **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
+- **Content**: Astro Content Collections - Type-safe markdown content
+- **Images**: Astro Assets - Optimized image processing
 
 ---
 
@@ -95,12 +95,12 @@ Visit `http://localhost:4321` to see your multilingual site!
 
 ## 🔀 Branch Overview
 
--   `feat/i18n-routing-helper`:
-    -   `src/i18n/utils.ts` exposes `buildLocalizedStaticPaths(basePath, pattern)` to generate localized `getStaticPaths()` entries for pages, dynamic routes, and catch‑all routes.
-    -   Pagination example `[pagination]/[...page].astro` shows Astro `paginate()` working with translated base segments (e.g., `blog-pagination` → `spletni-dnevnik-paginacija`).
-    -   `switchLanguageUrl()` powers the Language Picker to keep you on the equivalent blog post or page when changing languages, using `linkedContent` in blog frontmatter.
--   `main` (kept for simpler needs):
-    -   Fewer abstractions, suitable if you prefer explicit per-page setup without the helper.
+- `feat/i18n-routing-helper`:
+    - `src/i18n/utils.ts` exposes `buildLocalizedStaticPaths(basePath, pattern)` to generate localized `getStaticPaths()` entries for pages, dynamic routes, and catch‑all routes.
+    - Pagination example `[pagination]/[...page].astro` shows Astro `paginate()` working with translated base segments (e.g., `blog-pagination` → `spletni-dnevnik-paginacija`).
+    - `switchLanguageUrl()` powers the Language Picker to keep you on the equivalent blog post or page when changing languages, using `linkedContent` in blog frontmatter.
+- `main` (kept for simpler needs):
+    - Fewer abstractions, suitable if you prefer explicit per-page setup without the helper.
 
 If you want to keep both approaches, keep both branches and reference this README in this branch only.
 
@@ -190,9 +190,9 @@ PRODUCTION_DOMAIN = "https://your-domain.com"  # Used to enable robots.txt
 
 **Important:** Set your production domain for proper:
 
--   Open Graph images in social media
--   Canonical URLs for SEO
--   Search engine indexing control
+- Open Graph images in social media
+- Canonical URLs for SEO
+- Search engine indexing control
 
 ---
 
@@ -234,6 +234,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
--   [Astro](https://astro.build/) - Amazing static site generator
--   [Svelte](https://svelte.dev/) - Excellent component framework
--   [Tailwind CSS](https://tailwindcss.com/) - Great utility CSS framework
+- [Astro](https://astro.build/) - Amazing static site generator
+- [Svelte](https://svelte.dev/) - Excellent component framework
+- [Tailwind CSS](https://tailwindcss.com/) - Great utility CSS framework

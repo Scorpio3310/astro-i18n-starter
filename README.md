@@ -1,7 +1,7 @@
 # Astro i18n Starter
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-5.16-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-5.17-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 
@@ -19,9 +19,9 @@ Since Astro doesn't have built-in URL localization out of the box, this starter 
 >
 > Looking for a more advanced setup? Check the helper‑based branch (slightly more complex):
 >
-> -   Dynamic default language
-> -   Optional language prefix
->     Link: [https://github.com/Scorpio3310/astro-i18n-starter/tree/feat/i18n-routing-helper](https://github.com/Scorpio3310/astro-i18n-starter/tree/feat/i18n-routing-helper)
+> - Dynamic default language
+> - Optional language prefix
+>   Link: [https://github.com/Scorpio3310/astro-i18n-starter/tree/feat/i18n-routing-helper](https://github.com/Scorpio3310/astro-i18n-starter/tree/feat/i18n-routing-helper)
 
 ---
 
@@ -29,16 +29,16 @@ Since Astro doesn't have built-in URL localization out of the box, this starter 
 
 This project implements a comprehensive internationalization (i18n) system that includes:
 
--   ✅ **SEO-friendly URLs** in multiple languages (`/about` → `/sl/o-projektu`)
--   ✅ **Static & SSR hybrid** - Static generation at build time with SSR support for dynamic routes
--   ✅ **Language-specific content** loading and management
--   ✅ **Translation system** integration with namespace support
--   ✅ **Smart language switching** with context preservation
--   ✅ **Blog system** with multilingual posts and pagination
--   ✅ **Dynamic routes example** - Contact page demonstrates SSR with form handling
--   ✅ **Component examples** with Svelte 5 integration
--   ✅ **Accessibility features** with proper ARIA attributes
--   ✅ **SEO optimization** with meta tags and keywords
+- ✅ **SEO-friendly URLs** in multiple languages (`/about` → `/sl/o-projektu`)
+- ✅ **Static & SSR hybrid** - Static generation at build time with SSR support for dynamic routes
+- ✅ **Language-specific content** loading and management
+- ✅ **Translation system** integration with namespace support
+- ✅ **Smart language switching** with context preservation
+- ✅ **Blog system** with multilingual posts and pagination
+- ✅ **Dynamic routes example** - Contact page demonstrates SSR with form handling
+- ✅ **Component examples** with Svelte 5 integration
+- ✅ **Accessibility features** with proper ARIA attributes
+- ✅ **SEO optimization** with meta tags and keywords
 
 **Perfect for:** Projects requiring complete URL localization alongside content translation
 
@@ -48,12 +48,12 @@ This project implements a comprehensive internationalization (i18n) system that 
 
 ## 🛠️ Tech Stack
 
--   **Framework**: [Astro 5.16](https://astro.build/) - Static site generator
--   **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
--   **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
--   **Content**: Astro Content Collections - Type-safe markdown content
--   **Images**: Astro Assets - Optimized image processing
+- **Framework**: [Astro 5.17](https://astro.build/) - Static site generator
+- **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
+- **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
+- **Content**: Astro Content Collections - Type-safe markdown content
+- **Images**: Astro Assets - Optimized image processing
 
 ---
 
@@ -163,9 +163,9 @@ PRODUCTION_DOMAIN = "https://your-domain.com"  # Used to enable robots.txt
 
 **Important:** Set your production domain for proper:
 
--   Open Graph images in social media
--   Canonical URLs for SEO
--   Search engine indexing control
+- Open Graph images in social media
+- Canonical URLs for SEO
+- Search engine indexing control
 
 ---
 
@@ -191,8 +191,8 @@ The site generates static files optimized for any hosting provider (Netlify, Ver
 
 These items are maintained in the advanced helper‑based branch:
 
--   [x] ~~Dynamic default language~~
--   [x] ~~Optional language prefix~~
+- [x] ~~Dynamic default language~~
+- [x] ~~Optional language prefix~~
 
 updates: https://github.com/Scorpio3310/astro-i18n-starter/tree/feat/i18n-routing-helper
 
@@ -218,6 +218,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
--   [Astro](https://astro.build/) - Amazing static site generator
--   [Svelte](https://svelte.dev/) - Excellent component framework
--   [Tailwind CSS](https://tailwindcss.com/) - Great utility CSS framework
+- [Astro](https://astro.build/) - Amazing static site generator
+- [Svelte](https://svelte.dev/) - Excellent component framework
+- [Tailwind CSS](https://tailwindcss.com/) - Great utility CSS framework

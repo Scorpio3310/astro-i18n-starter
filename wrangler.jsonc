@@ -1,8 +1,13 @@
 {
     "name": "astro-i18n-starter",
-    "compatibility_date": "2026-01-01", // Update to the day you deploy
-    "compatibility_flags": ["nodejs_compat"],
+    "main": "./dist/server/entry.mjs",
+    "compatibility_date": "2026-01-01",
+    "compatibility_flags": [
+        "nodejs_compat",
+        "no_handle_cross_request_promise_resolution",
+    ],
     "assets": {
-        "directory": "./dist",
+        "binding": "ASSETS",
+        "directory": "./dist/client",
     },
 }

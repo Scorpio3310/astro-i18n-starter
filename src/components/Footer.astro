@@ -7,7 +7,7 @@ import {
 } from "@i18n/utils";
 import { Image } from "astro:assets";
 import navigationData from "@data/navigationData";
-import logo from "@assets/logo.svg";
+import Logo from "@assets/logo.svg";
 
 // Translations
 const lang = getLangFromUrl(Astro.url);
@@ -26,12 +26,9 @@ const currentYear = new Date().getFullYear();
                 aria-label={`${t("main.title")} - ${t("footer.backToHome")}`}
                 tabindex="0"
             >
-                <Image
-                    src={logo}
-                    alt={t("main.title")}
+                <Logo
                     width={100}
                     class="mb-3 mx-auto hover:opacity-50"
-                    loading="eager"
                 />
             </a>
             <p>{t("footer.description")}</p>

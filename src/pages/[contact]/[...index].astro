@@ -1,0 +1,309 @@
+---
+// Imports
+import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
+import Base from "@layouts/Base.astro";
+import Info from "@/components/Info.astro";
+
+// Get current language from URL
+export function getStaticPaths() {
+    return buildLocalizedStaticPaths("/contact", ["contact", "...index"]);
+}
+
+// Props
+const { lang } = Astro.props;
+
+// Translations
+const t = useTranslations(lang);
+---
+
+<Base
+    title={t("contact:head.title")}
+    meta={{
+        description: t("contact:head.description"),
+        keywords: t("contact:head.keywords"),
+    }}
+>
+    <section aria-labelledby="contact-title">
+        <h1 id="contact-title">{t("contact:title")}</h1>
+        <Info lang={lang} message={t("contact:server")} />
+
+        <form
+            name="Contact Form"
+            method="POST"
+            action="/api/contact"
+            role="form"
+            aria-labelledby="form-heading"
+            data-lang={lang}
+            data-validation={JSON.stringify({
+                nameRequired: t("contact:validation.nameRequired"),
+                nameMin: t("contact:validation.nameMin"),
+                emailRequired: t("contact:validation.emailRequired"),
+                emailInvalid: t("contact:validation.emailInvalid"),
+                messageRequired: t("contact:validation.messageRequired"),
+                messageMin: t("contact:validation.messageMin"),
+                genericError: t("contact:validation.genericError"),
+            })}
+            novalidate
+        >
+            <div role="group" aria-labelledby="form-heading">
+                <h2 id="form-heading">{t("contact:subtitle")}</h2>
+                <p>{t("contact:description")}</p>
+            </div>
+
+            <div class="form-field">
+                <label for="name" class="required">
+                    {t("contact:form.name")}
+                    <abbr title="required" aria-label="required">*</abbr>
+                </label>
+                <input
+                    required
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder={t("contact:form.placeholder.name")}
+                    aria-describedby="name-error"
+                    autocomplete="name"
+                />
+                <div
+                    id="name-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="email" class="required">
+                    {t("contact:form.email")}
+                    <abbr title="required" aria-label="required">*</abbr>
+                </label>
+                <input
+                    required
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder={t("contact:form.placeholder.email")}
+                    aria-describedby="email-error"
+                    autocomplete="email"
+                />
+                <div
+                    id="email-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="message" class="required">
+                    {t("contact:form.message")}
+                    <abbr title="required" aria-label="required">*</abbr>
+                </label>
+                <textarea
+                    required
+                    name="message"
+                    id="message"
+                    placeholder={t("contact:form.placeholder.message")}
+                    rows="4"
+                    aria-describedby="message-error"
+                    autocomplete="off"></textarea>
+                <div
+                    id="message-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                >
+                </div>
+            </div>
+
+            <button type="submit" aria-describedby="submit-status">
+                {t("contact:form.submit")}
+            </button>
+            <div
+                id="submit-status"
+                role="status"
+                aria-live="polite"
+            >
+            </div>
+        </form>
+    </section>
+</Base>
+
+<script>
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function validateField(field: string, value: string, t: Record<string, string>): string | null {
+        const v = value.trim();
+        if (field === "name") {
+            if (!v) return t.nameRequired;
+            if (v.length < 2) return t.nameMin;
+        } else if (field === "email") {
+            if (!v) return t.emailRequired;
+            if (!EMAIL_REGEX.test(v)) return t.emailInvalid;
+        } else if (field === "message") {
+            if (!v) return t.messageRequired;
+            if (v.length < 10) return t.messageMin;
+        }
+        return null;
+    }
+
+    function showFieldError(field: string, message: string | null) {
+        const errorEl = document.getElementById(`${field}-error`);
+        const input = document.getElementById(field);
+        if (errorEl) errorEl.textContent = message || "";
+        if (input) {
+            if (message) {
+                input.classList.add("invalid");
+            } else {
+                input.classList.remove("invalid");
+            }
+        }
+    }
+
+    function clearAllErrors() {
+        for (const field of ["name", "email", "message"]) {
+            showFieldError(field, null);
+        }
+    }
+
+    const form = document.querySelector("form[name='Contact Form']") as HTMLFormElement | null;
+    if (form) {
+        const t = JSON.parse(form.dataset.validation || "{}");
+
+        // Live validation on blur
+        for (const field of ["name", "email", "message"]) {
+            const input = document.getElementById(field);
+            input?.addEventListener("blur", () => {
+                const value = (input as HTMLInputElement | HTMLTextAreaElement).value;
+                showFieldError(field, validateField(field, value, t));
+            });
+            // Clear error on input
+            input?.addEventListener("input", () => {
+                showFieldError(field, null);
+            });
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const status = document.getElementById("submit-status");
+            const button = form.querySelector("button[type='submit']") as HTMLButtonElement;
+
+            // Client-side validation
+            clearAllErrors();
+            const fields = ["name", "email", "message"];
+            let hasErrors = false;
+            for (const field of fields) {
+                const input = document.getElementById(field) as HTMLInputElement | HTMLTextAreaElement;
+                const error = validateField(field, input?.value || "", t);
+                if (error) {
+                    showFieldError(field, error);
+                    if (!hasErrors) input?.focus();
+                    hasErrors = true;
+                }
+            }
+            if (hasErrors) return;
+
+            button.disabled = true;
+            if (status) {
+                status.textContent = "";
+                status.className = "";
+            }
+
+            try {
+                const res = await fetch("/api/contact", {
+                    method: "POST",
+                    body: new FormData(form),
+                });
+                const data = await res.json();
+
+                if (!res.ok && data.errors) {
+                    // Server validation errors
+                    for (const [field, msg] of Object.entries(data.errors)) {
+                        showFieldError(field, msg as string);
+                    }
+                    return;
+                }
+
+                if (status) {
+                    status.textContent = data.message;
+                    status.className = data.success ? "success" : "error";
+                }
+                if (data.success) {
+                    form.reset();
+                    clearAllErrors();
+                }
+            } catch {
+                if (status) {
+                    status.textContent = t.genericError;
+                    status.className = "error";
+                }
+            } finally {
+                button.disabled = false;
+            }
+        });
+    }
+</script>
+
+<style>
+    @import "tailwindcss";
+
+    @theme {
+        --color-primary: #6c24d8;
+    }
+
+    form {
+        @apply space-y-4 max-w-4xl mx-auto pt-8;
+    }
+
+    form > div:first-child {
+        @apply mb-6;
+    }
+
+    form > div {
+        @apply space-y-1;
+    }
+
+    label {
+        @apply block text-sm font-medium mb-1;
+    }
+
+    input,
+    textarea {
+        @apply w-full px-3 py-2 border border-gray-300;
+    }
+
+    input.invalid,
+    textarea.invalid {
+        @apply border-red-500;
+    }
+
+    .error-message:empty {
+        @apply hidden;
+    }
+
+    .error-message {
+        @apply text-sm text-red-600;
+    }
+
+    button {
+        @apply bg-primary text-white px-5 py-2.5 hover:opacity-50 cursor-pointer;
+    }
+
+    button:disabled {
+        @apply opacity-50 cursor-wait;
+    }
+
+    #submit-status {
+        @apply hidden border-l-2 pl-4 py-2 font-medium mt-2;
+    }
+
+    #submit-status.success {
+        @apply block bg-primary/10 border-primary text-primary;
+    }
+
+    #submit-status.error {
+        @apply block bg-red-50 border-red-800 text-red-800;
+    }
+</style>

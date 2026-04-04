@@ -7,7 +7,7 @@ import {
 } from "@i18n/utils";
 import { Image } from "astro:assets";
 import navigationData from "@data/navigationData";
-import logo from "@assets/logo.svg";
+import Logo from "@assets/logo.svg";
 import LanguagePicker from "./LanguagePicker.astro";
 
 // Translations
@@ -32,10 +32,7 @@ const translatePath = useTranslatedPath(lang);
             aria-label={t("main.title")}
             tabindex="0"
         >
-            <Image
-                src={logo}
-                alt={t("main.title")}
-                loading="eager"
+            <Logo
                 width={100}
             />
         </a>

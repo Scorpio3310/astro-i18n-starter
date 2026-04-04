@@ -50,7 +50,7 @@ This project implements a comprehensive internationalization (i18n) system that 
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Astro 5.17](https://astro.build/) - Static site generator
+- **Framework**: [Astro 6.1](https://astro.build/) - Static site generator
 - **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
 - **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS

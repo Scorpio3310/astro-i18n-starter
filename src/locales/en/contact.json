@@ -7,8 +7,7 @@
     "title": "Let's Start a Conversation",
     "subtitle": "Drop us a line",
     "description": "Have a question, project idea, or just want to say hello? We'd love to hear from you. Send us a message and we'll get back to you as soon as possible.",
-    "unlocalized": "Example page: The URL here is not localized and remains the same in all languages.",
-    "server": "This page is server-side rendered (SSR) and not statically generated. This allows for dynamic content, such as handling form submissions or fetching real-time data.",
+    "server": "This page is statically generated. Form submissions are handled by a server-side API endpoint.",
     "form": {
         "name": "Your Name",
         "email": "Email Address",
@@ -19,5 +18,14 @@
             "message": "Tell us about your project, question, or just say hi..."
         },
         "submit": "Send Message"
+    },
+    "validation": {
+        "nameRequired": "Please enter your name.",
+        "nameMin": "Name must be at least 2 characters.",
+        "emailRequired": "Please enter your email address.",
+        "emailInvalid": "Please enter a valid email address.",
+        "messageRequired": "Please enter a message.",
+        "messageMin": "Message must be at least 10 characters.",
+        "genericError": "Something went wrong. Please try again."
     }
 }

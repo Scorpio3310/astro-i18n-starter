@@ -8,6 +8,7 @@ export const routes: Record<string, Record<string, string>> = {
     sl: {
         about: "o-projektu",
         blog: "spletni-dnevnik",
+        contact: "kontakt",
         "dynamic-routing": "dinamicno-usmerjanje",
         "blog-pagination": "spletni-dnevnik-paginacija",
         pages: "strani",

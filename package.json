@@ -1,7 +1,7 @@
 {
     "name": "astro-i18n-starter",
     "private": true,
-    "version": "1.0.0",
+    "version": "1.2.0",
     "type": "module",
     "description": "Multilingual Astro starter with URL localization and i18n support",
     "author": {

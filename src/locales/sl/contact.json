@@ -7,8 +7,7 @@
     "title": "Začnimo pogovor",
     "subtitle": "Pišite nam",
     "description": "Imate vprašanje, idejo za projekt ali pa nam želite samo reči pozdravljeni? Veseli bomo vašega sporočila. Pišite nam in odgovorili vam bomo v najkrajšem možnem času.",
-    "unlocalized": "Primer strani: URL tukaj ni lokalizirani in ostaneje enak v vseh jezikih.",
-    "server": "Ta stran je upodabljana na strežniku (SSR) in ni statično generirana. To omogoča dinamično vsebino, kot je obdelava obrazcev ali pridobivanje podatkov v realnem času.",
+    "server": "Ta stran je statično generirana. Oddaje obrazcev obdeluje strežniška API končna točka.",
     "form": {
         "name": "Vaše ime",
         "email": "E-poštni naslov",
@@ -19,5 +18,14 @@
             "message": "Povejte nam o svojem projektu, vprašajte nas ali pa nas samo pozdravite..."
         },
         "submit": "Pošlji sporočilo"
+    },
+    "validation": {
+        "nameRequired": "Prosimo, vnesite svoje ime.",
+        "nameMin": "Ime mora imeti vsaj 2 znaka.",
+        "emailRequired": "Prosimo, vnesite e-poštni naslov.",
+        "emailInvalid": "Prosimo, vnesite veljaven e-poštni naslov.",
+        "messageRequired": "Prosimo, vnesite sporočilo.",
+        "messageMin": "Sporočilo mora imeti vsaj 10 znakov.",
+        "genericError": "Nekaj je šlo narobe. Prosimo, poskusite znova."
     }
 }

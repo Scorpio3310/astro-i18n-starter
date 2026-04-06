@@ -10,22 +10,22 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: ^13.1.7
-        version: 13.1.7(@types/node@24.12.0)(astro@6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))(jiti@2.6.1)(lightningcss@1.32.0)(workerd@1.20260401.1)(wrangler@4.80.0)
+        version: 13.1.7(@types/node@24.12.0)(astro@6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))(jiti@2.6.1)(lightningcss@1.32.0)(workerd@1.20260401.1)(wrangler@4.80.0)
       '@astrojs/mdx':
         specifier: ^5.0.3
-        version: 5.0.3(astro@6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))
+        version: 5.0.3(astro@6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))
       '@astrojs/sitemap':
         specifier: ^3.7.2
         version: 3.7.2
       '@astrojs/svelte':
         specifier: ^8.0.4
-        version: 8.0.4(@types/node@24.12.0)(astro@6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))(jiti@2.6.1)(lightningcss@1.32.0)(svelte@5.55.1)(typescript@6.0.2)
+        version: 8.0.4(@types/node@24.12.0)(astro@6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))(jiti@2.6.1)(lightningcss@1.32.0)(svelte@5.55.1)(typescript@6.0.2)
       '@tailwindcss/vite':
         specifier: ^4.2.2
         version: 4.2.2(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0))
       astro:
-        specifier: ^6.1.3
-        version: 6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2)
+        specifier: ^6.1.4
+        version: 6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2)
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -1047,8 +1047,8 @@ packages:
     resolution: {integrity: sha512-LElXdjswlqjWrPpJFg1Fx4wpkOCxj1TDHlSV4PlaRxHGWko024xICaa97ZkMfs6DRKlCguiAI+rbXv5GWwXIkg==}
     hasBin: true
 
-  astro@6.1.3:
-    resolution: {integrity: sha512-FUKbBYOdYYrRNZwDd9I5CVSfR6Nj9aZeNzcjcvh1FgHwR0uXawkYFR3HiGxmdmAB2m8fs0iIkDdsiUfwGeO8qA==}
+  astro@6.1.4:
+    resolution: {integrity: sha512-SRy1bONuCHkGWhI5JiWCQKVDVbeaXOikjAVZs/Nz+lvUvubtdLoZfnacmuZHQ9RL2IOkU54M8/qZYm9ypJDKrg==}
     engines: {node: '>=22.12.0', npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
@@ -2211,12 +2211,12 @@ packages:
 
 snapshots:
 
-  '@astrojs/cloudflare@13.1.7(@types/node@24.12.0)(astro@6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))(jiti@2.6.1)(lightningcss@1.32.0)(workerd@1.20260401.1)(wrangler@4.80.0)':
+  '@astrojs/cloudflare@13.1.7(@types/node@24.12.0)(astro@6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))(jiti@2.6.1)(lightningcss@1.32.0)(workerd@1.20260401.1)(wrangler@4.80.0)':
     dependencies:
       '@astrojs/internal-helpers': 0.8.0
       '@astrojs/underscore-redirects': 1.0.3
       '@cloudflare/vite-plugin': 1.30.1(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0))(workerd@1.20260401.1)(wrangler@4.80.0)
-      astro: 6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2)
+      astro: 6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2)
       piccolore: 0.1.3
       tinyglobby: 0.2.15
       vite: 7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)
@@ -2269,12 +2269,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@5.0.3(astro@6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))':
+  '@astrojs/mdx@5.0.3(astro@6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))':
     dependencies:
       '@astrojs/markdown-remark': 7.1.0
       '@mdx-js/mdx': 3.1.1
       acorn: 8.16.0
-      astro: 6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2)
+      astro: 6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2)
       es-module-lexer: 2.0.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.5
@@ -2298,10 +2298,10 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 4.3.6
 
-  '@astrojs/svelte@8.0.4(@types/node@24.12.0)(astro@6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))(jiti@2.6.1)(lightningcss@1.32.0)(svelte@5.55.1)(typescript@6.0.2)':
+  '@astrojs/svelte@8.0.4(@types/node@24.12.0)(astro@6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2))(jiti@2.6.1)(lightningcss@1.32.0)(svelte@5.55.1)(typescript@6.0.2)':
     dependencies:
       '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.55.1)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0))
-      astro: 6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2)
+      astro: 6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2)
       svelte: 5.55.1
       svelte2tsx: 0.7.52(svelte@5.55.1)(typescript@6.0.2)
       typescript: 6.0.2
@@ -3022,7 +3022,7 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro@6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2):
+  astro@6.1.4(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@6.0.2):
     dependencies:
       '@astrojs/compiler': 3.0.1
       '@astrojs/internal-helpers': 0.8.0

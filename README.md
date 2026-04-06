@@ -21,7 +21,7 @@ git checkout feat/i18n-routing-helper
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 
-## 🌐 [Live Demo - feat/i18n-routing-helper](https://feat-i18n-routing-helper.astro-i18n-starter-cd2.pages.dev)
+## 🌐 [Live Demo - feat/i18n-routing-helper](https://astro-i18n-starter-routing-helper.klemenc.dev)
 
 > Multilingual Astro starter with URL localization support. Complete documentation available at the demo link.
 

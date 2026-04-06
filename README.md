@@ -1,7 +1,7 @@
 # Astro i18n Starter
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-6.1-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-6.1.4-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 

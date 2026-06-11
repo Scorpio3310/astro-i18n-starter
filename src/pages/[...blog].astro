@@ -58,7 +58,10 @@ const authors = authorsRaw.map((a) => ({
     ...a,
     data: {
         ...a.data,
-        position: a.data.position?.[lang] ?? a.data.position?.en ?? "",
+        position:
+            a.data.position?.[lang as "en" | "sl"] ??
+            a.data.position?.en ??
+            "",
     },
 }));
 ---
@@ -102,23 +105,25 @@ const authors = authorsRaw.map((a) => ({
                                         {formatDate(post.data.pubDate)}
                                     </p>
 
-                                    <div class="author">
-                                        <Image
-                                            src={author.data.image}
-                                            alt={author?.data?.name}
-                                            height={36}
-                                            width={36}
-                                            loading="lazy"
-                                            quality={"high"}
-                                            class="rounded-full"
-                                        />
-                                        <div>
-                                            <h3>{author?.data?.name}</h3>
-                                            <p class="position">
-                                                {author?.data?.position}
-                                            </p>
+                                    {author && (
+                                        <div class="author">
+                                            <Image
+                                                src={author.data.image}
+                                                alt={author.data.name}
+                                                height={36}
+                                                width={36}
+                                                loading="lazy"
+                                                quality={"high"}
+                                                class="rounded-full"
+                                            />
+                                            <div>
+                                                <h3>{author.data.name}</h3>
+                                                <p class="position">
+                                                    {author.data.position}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     <h2>{post.data.title}</h2>
                                     <p>{post.data.description}</p>

@@ -24,7 +24,8 @@
         "name": "Nik Klemenc",
         "copy": "Copyright",
         "made": "Made with {{what}}",
-        "index": "Table of Contents"
+        "index": "Table of Contents",
+        "backToHome": "Back to home"
     },
     "pageNotFound": {
         "head": {

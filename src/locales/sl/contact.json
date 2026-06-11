@@ -7,7 +7,7 @@
     "title": "Začnimo pogovor",
     "subtitle": "Pišite nam",
     "description": "Imate vprašanje, idejo za projekt ali pa nam želite samo reči pozdravljeni? Veseli bomo vašega sporočila. Pišite nam in odgovorili vam bomo v najkrajšem možnem času.",
-    "server": "Ta stran je statično generirana. Oddaje obrazcev obdeluje strežniška API končna točka.",
+    "server": "Ta stran je statično generirana. Oddaje obrazcev obdeluje strežniška Astro Action.",
     "form": {
         "name": "Vaše ime",
         "email": "E-poštni naslov",
@@ -27,5 +27,12 @@
         "messageRequired": "Prosimo, vnesite sporočilo.",
         "messageMin": "Sporočilo mora imeti vsaj 10 znakov.",
         "genericError": "Nekaj je šlo narobe. Prosimo, poskusite znova."
-    }
+    },
+    "funky": [
+        "Bum! Sporočilo dostavljeno hitreje kot gepard na rolkah po kavi.",
+        "Tvoje sporočilo je pravkar naredilo trojno salto v naš nabiralnik. Perfekten pristanek.",
+        "Sporočilo prejeto! Naši poštni golobi so zdaj uradno brezposelni.",
+        "Houston, imamo sporočilo! In je čudovito.",
+        "Tvoje besede zdaj surfajo po digitalnih valovih naravnost do naše ekipe."
+    ]
 }

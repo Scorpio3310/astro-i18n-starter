@@ -155,31 +155,33 @@ const translatePath = useTranslatedPath(lang);
                                             {formatDate(post.data.pubDate)}
                                         </time>
 
-                                        <div
-                                            class="author"
-                                            role="group"
-                                            aria-label={author?.data?.name}
-                                        >
-                                            <Image
-                                                src={author?.data?.image}
-                                                alt={author?.data?.name}
-                                                height={36}
-                                                width={36}
-                                                loading="lazy"
-                                                quality={"mid"}
-                                                class="rounded-full"
-                                                role="img"
-                                            />
-                                            <div>
-                                                <h3>{author?.data?.name}</h3>
-                                                <p
-                                                    class="position"
-                                                    aria-label={`${author?.data?.position}`}
-                                                >
-                                                    {author?.data?.position}
-                                                </p>
+                                        {author && (
+                                            <div
+                                                class="author"
+                                                role="group"
+                                                aria-label={author.data.name}
+                                            >
+                                                <Image
+                                                    src={author.data.image}
+                                                    alt={author.data.name}
+                                                    height={36}
+                                                    width={36}
+                                                    loading="lazy"
+                                                    quality={"mid"}
+                                                    class="rounded-full"
+                                                    role="img"
+                                                />
+                                                <div>
+                                                    <h3>{author.data.name}</h3>
+                                                    <p
+                                                        class="position"
+                                                        aria-label={`${author.data.position}`}
+                                                    >
+                                                        {author.data.position}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
 
                                         <h2 id={`${postId}-title`}>
                                             {post.data.title}

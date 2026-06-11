@@ -5,7 +5,6 @@ import {
     useTranslations,
     useTranslatedPath,
 } from "@i18n/utils";
-import { Image } from "astro:assets";
 import navigationData from "@data/navigationData";
 import Logo from "@assets/logo.svg";
 
@@ -23,7 +22,7 @@ const currentYear = new Date().getFullYear();
         <div>
             <a
                 href={translatePath("/")}
-                aria-label={`${t("main.title")} - ${t("footer.backToHome")}`}
+                aria-label={`${t("main:title")} - ${t("footer.backToHome")}`}
                 tabindex="0"
             >
                 <Logo

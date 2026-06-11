@@ -1,6 +1,7 @@
 ---
 // Imports
-import { getLangFromUrl } from "@i18n/utils";
+import { getLangFromUrl, switchLanguageUrl } from "@i18n/utils";
+import { languages, defaultLang } from "@i18n/ui";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import "@styles/global.css";
@@ -9,6 +10,19 @@ import { ClientRouter } from "astro:transitions";
 
 // Get current language from URL
 const lang = getLangFromUrl(Astro.url);
+
+// Build hreflang alternates for all languages (+ x-default on the default language)
+const hreflangAlternates: { hreflang: string; href: string }[] = [];
+for (const l of Object.keys(languages)) {
+    const path = await switchLanguageUrl(Astro.url, l);
+    // No translated version exists (e.g. blog post without linkedContent) — skip
+    if (l !== lang && path === Astro.url.pathname) continue;
+    const href = new URL(path, Astro.site).href;
+    hreflangAlternates.push({ hreflang: l, href });
+    if (l === defaultLang) {
+        hreflangAlternates.push({ hreflang: "x-default", href });
+    }
+}
 
 // Props interface
 interface Props {
@@ -57,7 +71,12 @@ const { meta, title } = Astro.props as Props;
         <meta name="description" content={meta.description} />
         {meta.keywords && <meta name="keywords" content={meta.keywords} />}
         <link rel="canonical" href={meta.canonical || Astro.url.href} />
-        
+        {
+            hreflangAlternates.map(({ hreflang, href }) => (
+                <link rel="alternate" hreflang={hreflang} href={href} />
+            ))
+        }
+
         <!-- OG Tags -->
         <meta property="og:title" content={title} />
         <meta property="og:description" content={meta.description} />

@@ -24,7 +24,8 @@
         "name": "Nik Klemenc",
         "copy": "Avtorske pravice",
         "made": "Narejeno z {{what}}",
-        "index": "Kazalo"
+        "index": "Kazalo",
+        "backToHome": "Nazaj na začetno stran"
     },
     "pageNotFound": {
         "head": {

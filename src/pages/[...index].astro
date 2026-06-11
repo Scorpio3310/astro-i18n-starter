@@ -41,13 +41,13 @@ const t = useTranslations(lang);
         </p>
 
         {
-            t("main:features").map((section, key) => (
+            t("main:features").map((section: any, key: number) => (
                 <>
                     <hr aria-hidden="true" />
                     <section aria-labelledby={`features-title-${key}`}>
                         <h2 id={`features-title-${key}`}>{section.title}</h2>
                         <ul aria-label={section.title}>
-                            {section.list.map((item) => (
+                            {section.list.map((item: any) => (
                                 <li set:html={item.p} />
                             ))}
                         </ul>

@@ -7,7 +7,7 @@
     "title": "Let's Start a Conversation",
     "subtitle": "Drop us a line",
     "description": "Have a question, project idea, or just want to say hello? We'd love to hear from you. Send us a message and we'll get back to you as soon as possible.",
-    "server": "This page is statically generated. Form submissions are handled by a server-side API endpoint.",
+    "server": "This page is statically generated. Form submissions are handled by a server-side Astro Action.",
     "form": {
         "name": "Your Name",
         "email": "Email Address",
@@ -27,5 +27,12 @@
         "messageRequired": "Please enter a message.",
         "messageMin": "Message must be at least 10 characters.",
         "genericError": "Something went wrong. Please try again."
-    }
+    },
+    "funky": [
+        "Boom! Message delivered faster than a caffeinated cheetah on roller skates.",
+        "Your message just did a triple backflip into our inbox. Perfect landing.",
+        "Message received! Our carrier pigeons are now officially unemployed.",
+        "Houston, we have a message! And it's a beautiful one.",
+        "Your words are now surfing the digital waves straight to our team."
+    ]
 }

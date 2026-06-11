@@ -41,10 +41,8 @@ const t = useTranslations(lang);
         <form
             name="Contact Form"
             method="POST"
-            action="/api/contact"
             role="form"
             aria-labelledby="form-heading"
-            data-lang={lang}
             data-validation={JSON.stringify({
                 nameRequired: t("contact:validation.nameRequired"),
                 nameMin: t("contact:validation.nameMin"),
@@ -59,6 +57,20 @@ const t = useTranslations(lang);
             <div role="group" aria-labelledby="form-heading">
                 <h2 id="form-heading">{t("contact:subtitle")}</h2>
                 <p>{t("contact:description")}</p>
+            </div>
+
+            <input type="hidden" name="lang" value={lang} />
+
+            <!-- Honeypot: hidden from humans, bots fill it and get silently rejected -->
+            <div class="hp-field" aria-hidden="true">
+                <label for="website">Website</label>
+                <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    tabindex="-1"
+                    autocomplete="off"
+                />
             </div>
 
             <div class="form-field">
@@ -143,6 +155,8 @@ const t = useTranslations(lang);
 </Base>
 
 <script>
+    import { actions, isInputError } from "astro:actions";
+
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     function validateField(field: string, value: string, t: Record<string, string>): string | null {
@@ -223,28 +237,35 @@ const t = useTranslations(lang);
             }
 
             try {
-                const res = await fetch("/api/contact", {
-                    method: "POST",
-                    body: new FormData(form),
-                });
-                const data = await res.json();
+                const { data, error } = await actions.contact(
+                    new FormData(form),
+                );
 
-                if (!res.ok && data.errors) {
-                    // Server validation errors
-                    for (const [field, msg] of Object.entries(data.errors)) {
-                        showFieldError(field, msg as string);
+                if (error) {
+                    if (isInputError(error)) {
+                        // The action returns stable error keys (e.g. "nameMin")
+                        // which map to the localized messages in `t`
+                        for (const [field, keys] of Object.entries(
+                            error.fields,
+                        )) {
+                            if (fields.includes(field)) {
+                                const key = keys?.[0] || "";
+                                showFieldError(field, t[key] || t.genericError);
+                            }
+                        }
+                    } else if (status) {
+                        status.textContent = t.genericError;
+                        status.className = "error";
                     }
                     return;
                 }
 
                 if (status) {
                     status.textContent = data.message;
-                    status.className = data.success ? "success" : "error";
+                    status.className = "success";
                 }
-                if (data.success) {
-                    form.reset();
-                    clearAllErrors();
-                }
+                form.reset();
+                clearAllErrors();
             } catch {
                 if (status) {
                     status.textContent = t.genericError;
@@ -292,6 +313,11 @@ const t = useTranslations(lang);
 
     .error-message:empty {
         @apply hidden;
+    }
+
+    /* Honeypot: visually removed but still fillable by bots (no display:none) */
+    .hp-field {
+        @apply absolute -left-[9999px] top-auto w-px h-px overflow-hidden;
     }
 
     .error-message {

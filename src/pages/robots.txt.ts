@@ -13,15 +13,15 @@
  */
 
 import type { APIRoute } from "astro";
+import { PRODUCTION_DOMAIN } from "astro:env/server";
 import DEV_ROBOTS_TXT from "@data/robots/dev_robots.txt?raw";
 import PRODUCTION_ROBOTS_TXT from "@data/robots/production_robots.txt?raw";
 
 export const GET: APIRoute = async ({ url }) => {
-    // Get the production domain from environment variables
-    const PRODUCTION_DOMAIN = import.meta.env.PRODUCTION_DOMAIN;
-
     // Check if current request origin matches production domain
-    const isProd = url.origin.includes(PRODUCTION_DOMAIN);
+    const isProd = PRODUCTION_DOMAIN
+        ? url.origin.includes(PRODUCTION_DOMAIN)
+        : false;
 
     let robotsContent = isProd ? PRODUCTION_ROBOTS_TXT : DEV_ROBOTS_TXT;
 

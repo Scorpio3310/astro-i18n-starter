@@ -13,7 +13,7 @@ const t = useTranslations(currentLang);
 
 // Pre-generate URLs for all languages
 const languageUrls = await Promise.all(
-    Object.entries(languages).map(async ([lang, label]) => {
+    Object.keys(languages).map(async (lang) => {
         const targetUrl = await switchLanguageUrl(Astro.url, lang);
         const translatedLabel = t(`menu.languages.${lang}`);
         return { lang, label: translatedLabel, targetUrl };

@@ -95,16 +95,18 @@ const { meta, title } = Astro.props as Props;
         <meta name="robots" content={meta.robots || "index, follow"} />
         
         <!-- JSON-LD -->
-        <script type="application/ld+json">
-            {JSON.stringify({
+        <script
+            is:inline
+            type="application/ld+json"
+            set:html={JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "WebPage",
-                "name": title,
-                "description": meta.description,
-                "url": meta.url || Astro.url.href,
-                "image": meta.image || "/og-image.jpg"
+                name: title,
+                description: meta.description,
+                url: meta.url || Astro.url.href,
+                image: meta.image || "/og-image.jpg",
             })}
-        </script>
+        />
     </head>
     <body>
         <ClientRouter />

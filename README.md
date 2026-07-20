@@ -1,7 +1,7 @@
 # Astro i18n Starter
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-7.0.6-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-7.1.2-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 
@@ -30,7 +30,7 @@ Since Astro doesn't have built-in URL localization out of the box, this starter 
 This project implements a comprehensive internationalization (i18n) system that includes:
 
 - ✅ **SEO-friendly URLs** in multiple languages (`/about` → `/sl/o-projektu`)
-- ✅ **Static & SSR hybrid** - Static generation at build time with SSR support for dynamic routes
+- ✅ **Static + on-demand rendering** - Static generation at build time with on-demand rendering for dynamic routes
 - ✅ **Language-specific content** loading and management
 - ✅ **Translation system** integration with namespace support
 - ✅ **Smart language switching** with context preservation
@@ -48,7 +48,7 @@ This project implements a comprehensive internationalization (i18n) system that 
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Astro 7.0](https://astro.build/) - Static site generator
+- **Framework**: [Astro 7.1](https://astro.build/) - Static site generator
 - **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
 - **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS

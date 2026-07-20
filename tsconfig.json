@@ -13,7 +13,6 @@
             "@i18n/*": ["src/i18n/*"],
             "@layouts/*": ["src/layouts/*"],
             "@styles/*": ["src/styles/*"],
-            "@templates/*": ["src/templates/*"],
             "@utils/*": ["src/utils/*"]
         }
     }

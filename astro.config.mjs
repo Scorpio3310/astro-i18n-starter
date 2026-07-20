@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 import mdx from "@astrojs/mdx";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
@@ -10,7 +10,18 @@ import cloudflare from "@astrojs/cloudflare";
 // https://astro.build/config
 export default defineConfig({
   // UPDATE THIS FOR PRODUCTION – This will also be used in the sitemap
+  // astro:env can't be used in the config file itself, so process.env stays here
   site: process.env.PRODUCTION_DOMAIN || "http://localhost:4321",
+
+  env: {
+      schema: {
+          PRODUCTION_DOMAIN: envField.string({
+              context: "server",
+              access: "public",
+              optional: true,
+          }),
+      },
+  },
 
   integrations: [
       mdx(),

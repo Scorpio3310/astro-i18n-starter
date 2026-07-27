@@ -17,7 +17,7 @@ git checkout feat/i18n-routing-helper
 ---
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-7.1.2-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-7.1.3-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 

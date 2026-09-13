@@ -13,24 +13,24 @@ Ta vodič ti pokaže, kako dodati novo stran v večjezični Astro projekt.
 
 Izberi pristop glede na potrebe:
 
-### 🗂️ Vzorec A: `[...pages].astro` (Single File Pattern)
+### 🗂️ Vzorec A: `[...blog].astro` (Single File Pattern)
 
 **Kdaj uporabi:** Preproste strani brez podstrani  
-**Primeri:** `[...index].astro`, `[...blog].astro`, `[...contact].astro`
+**Primeri:** `[...index].astro`, `[...blog].astro`
 
 ```ts
 import { buildLocalizedStaticPaths } from "@i18n/utils";
 
-// Enotni catch‑all: [...pages].astro
+// Enotni catch-all: [...blog].astro → /blog in /sl/spletni-dnevnik
 export function getStaticPaths() {
-    return buildLocalizedStaticPaths("/pages", ["...pages"]);
+    return buildLocalizedStaticPaths("/blog", ["...blog"]);
 }
 ```
 
 ### 📁 Vzorec B: `[pages]/[...index].astro` (Folder Pattern)
 
 **Kdaj uporabi:** Strani z dodatnimi datotekami (MDX, slike, komponente)  
-**Primeri:** `[about]/[...index].astro`, `[services]/[...index].astro`  
+**Primeri:** `[about]/[...index].astro`, `[pages]/[...index].astro`, `[contact]/[...index].astro`  
 **Prednosti:** Organizirana struktura, lažje vzdrževanje
 
 ```ts
@@ -42,8 +42,10 @@ export function getStaticPaths() {
 }
 ```
 
-> ⚠️ KRITIČNO - Sinhronizacija
->
+---
+
+## ⚠️ KRITIČNO - Sinhronizacija
+
 > Poskrbi, da so vsi lokalizirani segmenti (npr. `pages → strani`) zapisani v `routes.ts`. `useTranslatedPath()` uporablja te preslikave.
 
 ---
@@ -56,7 +58,7 @@ Brez spreminjanja datotek strani lahko zamenjaš korenski jezik:
     - `defaultLang = "sl"` (ali drug jezik)
     - `showDefaultLang = true | false` (ali želiš predpono tudi za privzeti jezik)
 2. Koren postane `/` (ko je `showDefaultLang = false`) ali `/{defaultLang}/` (ko je `true`).
-3. Vse poti se samodejno prilagodijo, ker `getStaticPaths()` uporablja `useTranslatedPath()`.
+3. Vse poti se samodejno prilagodijo, ker `getStaticPaths()` uporablja `buildLocalizedStaticPaths()`.
 4. Preveri home, about, pages in navigacijo.
 
 Namig: V primerih uporabi `useTranslatedPath(lang)("/pages")` namesto ročnih lokaliziranih segmentov.
@@ -73,8 +75,9 @@ Dodajmo novo stran `/services` → `/sl/storitve`:
 
 ### Korak 2: Nastavi getStaticPaths
 
-```ts
-import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
+```astro
+---
+import { buildLocalizedStaticPaths } from "@i18n/utils";
 import Base from "@layouts/Base.astro";
 import "@styles/markdown.css";
 
@@ -83,7 +86,6 @@ export function getStaticPaths() {
 }
 
 const { lang } = Astro.props;
-const t = useTranslations(lang);
 const { Content, frontmatter } = await import(`./_services-${lang}.mdx`);
 ---
 
@@ -93,8 +95,8 @@ const { Content, frontmatter } = await import(`./_services-${lang}.mdx`);
         description: frontmatter?.description,
         keywords: frontmatter?.keywords,
     }}
-    >
-    <section id="md-content">
+>
+    <section id="md-content" aria-label="Page content">
         <Content />
     </section>
 </Base>
@@ -102,12 +104,17 @@ const { Content, frontmatter } = await import(`./_services-${lang}.mdx`);
 
 ### Korak 3: Dodaj v routes.ts
 
-```javascript
+```typescript
 export const routes: Record<string, Record<string, string>> = {
     sl: {
         about: "o-projektu",
         blog: "spletni-dnevnik",
+        contact: "kontakt",
+        "dynamic-routing": "dinamicno-usmerjanje",
+        "blog-pagination": "spletni-dnevnik-paginacija",
         pages: "strani",
+        "subpage-1": "podstran-1",
+        "subpage-2": "podstran-2",
         services: "storitve", // ← Ujema se z "storitve" zgoraj
     },
 };
@@ -130,7 +137,9 @@ const navigationData = [
 -   `_services-en.mdx`
 -   `_services-sl.mdx`
 
-### Korak 6: Dodaj prevode (opcijsko, če nebereš iz MDX)
+### Korak 6: Dodaj prevode
+
+`services.json` je opcijski, če vsebino bereš iz MDX. Navigacijska oznaka v `common.json` je obvezna, sicer `t("menu.list.services")` izpiše surov ključ.
 
 **V `locales/en/services.json`:**
 
@@ -140,7 +149,6 @@ const navigationData = [
         "title": "Our Services",
         "description": "Professional services we offer"
     },
-    // Če želiš, lahko dodaš tudi druge ključe
     "title": "Our Services",
     "description": "We provide comprehensive solutions for your business needs."
 }
@@ -154,28 +162,31 @@ const navigationData = [
         "title": "Naše storitve",
         "description": "Strokovne storitve, ki jih ponujamo"
     },
-    // Če želiš, lahko dodaš tudi druge ključe
     "title": "Naše storitve",
     "description": "Zagotavljamo celovite rešitve za vaše poslovne potrebe."
 }
 ```
 
-**V `locales/en/menu.json` dodaj:**
+**V `locales/en/common.json` (znotraj `menu.list`) dodaj navigacijsko oznako:**
 
 ```json
 {
-    "list": {
-        "services": "Services"
+    "menu": {
+        "list": {
+            "services": "Services"
+        }
     }
 }
 ```
 
-**V `locales/sl/menu.json` dodaj:**
+**V `locales/sl/common.json` (znotraj `menu.list`) dodaj navigacijsko oznako:**
 
 ```json
 {
-    "list": {
-        "services": "Storitve"
+    "menu": {
+        "list": {
+            "services": "Storitve"
+        }
     }
 }
 ```
@@ -188,8 +199,8 @@ Predpostavka: `defaultLang = "en"` in `showDefaultLang = false`:
 | -------------------- | -------------- | ------ |
 | 🇬🇧 Angleščina        | `/services`    | ✅     |
 | 🇸🇮 Slovenščina       | `/sl/storitve` | ✅     |
-| 🧭 Navigacija        | Avtomatska     | ✅     |
+| 🧭 Navigacija        | Po koraku 4    | ✅     |
 | 🔄 Language switcher | Preklopi jezik | ✅     |
-| 🍞 Breadcrumbs       | Prikaže pot    | ✅     |
+| 🔗 hreflang + sitemap | Avtomatsko     | ✅     |
 
 **Čestitke! Nova stran je uspešno dodana! 🎉**

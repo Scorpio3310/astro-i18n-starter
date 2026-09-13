@@ -32,11 +32,12 @@ Since Astro doesn't have built-in URL localization out of the box, this starter 
 This project implements a comprehensive internationalization (i18n) system that includes:
 
 ✅ **SEO-friendly URLs** in multiple languages (`/about` → `/sl/o-projektu`)  
-✅ **Static + on-demand rendering** - Static generation at build time with on-demand rendering for dynamic routes
+✅ **Static + on-demand rendering** - Static generation at build time, on-demand rendering where needed (404 route)  
 ✅ **Language-specific content** loading and management  
 ✅ **Translation system** integration with namespace support  
 ✅ **Smart language switching** with context preservation  
 ✅ **Blog system** with multilingual posts and pagination  
+✅ **Form handling example** - Contact page demonstrates Astro Actions with localized validation  
 ✅ **Helper for localized paths** via `buildLocalizedStaticPaths()`  
 ✅ **Component examples** with Svelte 5 integration  
 ✅ **Accessibility features** with proper ARIA attributes  
@@ -96,7 +97,7 @@ Visit `http://localhost:4321` to see your multilingual site!
 ## 🔀 Branch Overview
 
 - `feat/i18n-routing-helper`:
-    - `src/i18n/utils.ts` exposes `buildLocalizedStaticPaths(basePath, pattern)` to generate localized `getStaticPaths()` entries for pages, dynamic routes, and catch‑all routes.
+    - `src/i18n/utils.ts` exposes `buildLocalizedStaticPaths(basePath, pattern, extraProps?)` to generate localized `getStaticPaths()` entries for pages, dynamic routes, catch-all routes and the pagination base. The blog detail route (`[blog]/[...slug].astro`) composes its params with `useTranslatedPath()` directly.
     - Pagination example `[pagination]/[...page].astro` shows Astro `paginate()` working with translated base segments (e.g., `blog-pagination` → `spletni-dnevnik-paginacija`).
     - `switchLanguageUrl()` powers the Language Picker to keep you on the equivalent blog post or page when changing languages, using `linkedContent` in blog frontmatter.
 - `main` (kept for simpler needs):
@@ -112,14 +113,16 @@ If you want to keep both approaches, keep both branches and reference this READM
 /
 ├── public/              # Static assets
 ├── src/
+│   ├── actions/         # Astro Actions (contact form handler)
 │   ├── assets/          # Assets
 │   ├── components/      # Reusable components
 │   ├── content/         # Content collections (blog, authors)
-│   ├── data/            # Navigation and configuration
+│   ├── content.config.ts # Collection schemas
+│   ├── data/            # Navigation data + robots.txt templates
 │   ├── i18n/            # Translation utilities and routes
 │   ├── layouts/         # Page layouts
 │   ├── locales/         # Translation files (en, sl)
-│   ├── pages/           # File-based routing with [dynamic] params
+│   ├── pages/           # File-based routing with [dynamic] params (+ robots.txt.ts)
 │   ├── styles/          # Global styles
 │   └── utils/           # Utility functions
 ```
@@ -165,7 +168,7 @@ Detailed documentation with examples is available in the demo site.
 
 ## 🔁 Migrating From `main` to This Branch
 
-1. Add or update route translations in `src/i18n/routes.ts` (e.g., `about`, `blog`, `blog-pagination`, dynamic routing segments).
+1. Add or update route translations in `src/i18n/routes.ts` (`about`, `blog`, `contact`, `dynamic-routing`, `blog-pagination`, `pages`, `subpage-1`, `subpage-2`).
 2. Replace manual `getStaticPaths()` mapping with `buildLocalizedStaticPaths()` in localized pages:
     - Example patterns:
         - `"/about"` with `["about", "...index"]` → `[about]/[...index].astro`
@@ -175,6 +178,7 @@ Detailed documentation with examples is available in the demo site.
 4. Language switching: ensure blog posts that are equivalents across languages share a `linkedContent` value in frontmatter so `switchLanguageUrl()` can map slugs across languages.
 5. Verify `src/i18n/ui.ts` settings:
     - `defaultLang` and `showDefaultLang` drive whether the default language has a URL prefix and what the root `/` resolves to.
+    - Current values: `defaultLang = "en"`, `showDefaultLang = false` (English at `/`, Slovenian at `/sl/`). With `showDefaultLang = true` every language is prefixed and `src/pages/[...index].astro` emits a `/` → `/en/` redirect page (meta refresh).
 6. Navigation: update `src/data/navigationData.ts` to use English base `href` values (the helper translates them per language at runtime).
 
 Tip: After migrating, sanity‑check home, about, blog listing, a few posts, pagination pages, and the language picker in both languages.

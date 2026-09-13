@@ -23,19 +23,25 @@ The project implements an internationalization (i18n) system that enables:
 
 ```
 src/
-├── components/           # Components (Header, Footer, LanguagePicker)
-├── content/              # Content (blogs, authors)
+├── actions/              # Astro Actions (contact form handler)
+│   └── index.ts
+├── assets/               # Logo and other bundled assets
+├── components/           # Components (Header, Footer, LanguagePicker, Pagination, Counter.svelte)
+├── content/              # Content collections (blog, authors)
 │   ├── blog/
 │   │   ├── en/           # English posts
-│   │   └── sl/           # Slovenian posts
-│   └── authors/          # Author data
-├── data/                 # Navigation data
-│   └── navigationData.ts
+│   │   ├── sl/           # Slovenian posts
+│   │   └── images/       # Post images
+│   └── authors/          # Author data (authors.json)
+├── content.config.ts     # Collection schemas (blog, authors)
+├── data/                 # Navigation data + robots.txt templates
+│   ├── navigationData.ts
+│   └── robots/
 ├── i18n/                 # Internationalization system
 │   ├── routes.ts         # Path translations
 │   ├── ui.ts             # Language configuration
-│   └── utils.ts          # Utility functions
-├── layouts/              # Base layouts
+│   └── utils.ts          # Utility functions + buildLocalizedStaticPaths()
+├── layouts/              # Base layout (head, hreflang, SEO)
 ├── locales/              # Translation files
 │   ├── en/               # English translations
 │   └── sl/               # Slovenian translations
@@ -46,9 +52,12 @@ src/
 │   │   └── _about-sl.mdx
 │   ├── [blog]/           # Blog detail pages
 │   │   └── [...slug].astro
+│   ├── [contact]/        # Contact page (Astro Actions form)
+│   │   └── [...index].astro
 │   ├── [dyn_routing]/    # Dynamic routing examples
 │   │   ├── [subpage2]/
 │   │   │   └── [...index].astro
+│   │   ├── [...index].astro
 │   │   └── [...subpage1].astro
 │   ├── [pages]/          # General pages
 │   │   ├── [...index].astro
@@ -57,10 +66,11 @@ src/
 │   ├── [pagination]/     # Pagination examples
 │   │   └── [...page].astro
 │   ├── [...blog].astro   # Blog listing page
-│   ├── [...contact].astro # Contact page
-│   ├── [...index].astro  # Home page
-│   └── 404.astro         # Error page
-└── styles/              # Style files
+│   ├── [...index].astro  # Home page (+ "/" redirect when showDefaultLang = true)
+│   ├── 404.astro         # Error page
+│   └── robots.txt.ts     # robots.txt endpoint
+├── styles/               # Style files
+└── utils/                # Helpers (formatDate)
 ```
 
 ## 🔀 How Dynamic Routing Works
@@ -69,12 +79,16 @@ src/
 
 > Examples assume `defaultLang = "en"` and `showDefaultLang = false`. These URLs adapt automatically when you change these settings.
 
-| Page Pattern               | English URL  | Slovenian URL                | Description |
-| -------------------------- | ------------ | ---------------------------- | ----------- |
-| `[...index].astro`         | `/`          | `/sl/`                       | Home page   |
-| `[about]/[...index].astro` | `/about`     | `/sl/o-projektu`             | About       |
-| `[...contact].astro`       | `/contact`   | `/sl/kontakt`                | Contact     |
-| `[blog]/[...slug].astro`   | `/blog/post` | `/sl/spletni-dnevnik/objava` | Blog posts  |
+| Page Pattern                     | English URL        | Slovenian URL                    | Description     |
+| -------------------------------- | ------------------ | -------------------------------- | --------------- |
+| `[...index].astro`               | `/`                | `/sl/`                           | Home page       |
+| `[about]/[...index].astro`       | `/about`           | `/sl/o-projektu`                 | About           |
+| `[pages]/[...index].astro`       | `/pages`           | `/sl/strani`                     | Pages           |
+| `[contact]/[...index].astro`     | `/contact`         | `/sl/kontakt`                    | Contact         |
+| `[dyn_routing]/[...index].astro` | `/dynamic-routing` | `/sl/dinamicno-usmerjanje`       | Dynamic routing |
+| `[...blog].astro`                | `/blog`            | `/sl/spletni-dnevnik`            | Blog listing    |
+| `[blog]/[...slug].astro`         | `/blog/post`       | `/sl/spletni-dnevnik/objava`     | Blog posts      |
+| `[pagination]/[...page].astro`   | `/blog-pagination` | `/sl/spletni-dnevnik-paginacija` | Pagination      |
 
 ### 2. Visual Routing Flow
 
@@ -85,27 +99,27 @@ File: [about]/[...index].astro
 │   ├── URL: /about
 │   ├── Parameters: { about: "about", index: undefined }
 │   ├── Props: { lang: "en" }
-│   └── Content: _about-en.md
+│   └── Content: _about-en.mdx
 │
 └── Slovenian path
     ├── URL: /sl/o-projektu
     ├── Parameters: { about: "sl", index: "o-projektu" }
     ├── Props: { lang: "sl" }
-    └── Content: _about-sl.md
+    └── Content: _about-sl.mdx
 ```
 
 ### 3. Page Structures
 
 There are two main patterns for implementing dynamic pages:
 
-#### Pattern A: `[...pages].astro`
+#### Pattern A: `[...blog].astro` (single catch-all file)
 
 ```ts
 import { buildLocalizedStaticPaths } from "@i18n/utils";
 
-// Single-file: [...pages].astro
+// Single-file: [...blog].astro → /blog and /sl/spletni-dnevnik
 export function getStaticPaths() {
-    return buildLocalizedStaticPaths("/pages", ["...pages"]);
+    return buildLocalizedStaticPaths("/blog", ["...blog"]);
 }
 ```
 
@@ -124,13 +138,14 @@ export function getStaticPaths() {
 
 ### 1. `src/i18n/routes.ts` - Path Translations
 
-This file defines mappings between English and localized paths:
+This file defines mappings between English and localized paths. The default language (`en`) keeps the original route names, so it has no entry:
 
 ```typescript
 export const routes: Record<string, Record<string, string>> = {
     sl: {
         about: "o-projektu",
         blog: "spletni-dnevnik",
+        contact: "kontakt",
         "dynamic-routing": "dinamicno-usmerjanje",
         "blog-pagination": "spletni-dnevnik-paginacija",
         pages: "strani",
@@ -147,15 +162,21 @@ export const routes: Record<string, Record<string, string>> = {
 This file contains key configurations for language support:
 
 -   **`languages`** - defines supported languages and their labels; add new languages here
+-   **`locales`** - BCP-47 tag per language (`en-US`, `sl-SI`), used for `Intl` date formatting (`formatDate`) and the `og:locale` meta tag
 -   **`defaultLang`** - sets the default application language; flipping this moves the root (`/`) to that language
 -   **`showDefaultLang`** - toggles whether the default language appears in URLs (e.g., `/en/` instead of `/`)
 
-These are fully supported across pages, blog, and pagination.
+All three settings are honoured by `buildLocalizedStaticPaths()`, `useTranslatedPath()` and `switchLanguageUrl()`. Two places carry extra logic for them: `src/pages/[...index].astro` adds a `/` → `/{defaultLang}/` redirect entry when `showDefaultLang` is `true`, and `src/pages/[blog]/[...slug].astro` composes its params manually (`isRoot` branch).
 
 ```typescript
 export const languages = {
     en: "English",
     sl: "Slovenian",
+};
+
+export const locales: Record<keyof typeof languages, string> = {
+    en: "en-US",
+    sl: "sl-SI",
 };
 
 export const defaultLang = "en"; // set to "sl" to make Slovenian the root
@@ -170,7 +191,7 @@ export const showDefaultLang = false; // true → always prefix: /en/..., /sl/..
 2. The root becomes:
    - `/` when `showDefaultLang = false`
    - `/{defaultLang}/` when `showDefaultLang = true`
-3. No other changes are needed: all pages use `useTranslatedPath()` in `getStaticPaths()` so URLs adapt automatically.
+3. Page files need no changes: every `getStaticPaths()` goes through `buildLocalizedStaticPaths()` (or `useTranslatedPath()` in the blog detail route), so URLs adapt automatically. The `/` redirect entry in `src/pages/[...index].astro` is generated only when `showDefaultLang = true`.
 4. Sanity check a few URLs (home, about, blog list/post, pagination) and the language switcher.
 
 ### 3. `src/i18n/utils.ts` - Utility Functions
@@ -205,7 +226,7 @@ Returns a function for translating paths:
 
 ```typescript
 const translatePath = useTranslatedPath(lang);
-<a href={translatePath("/about")}>About</a>; // "/o-projektu" for Slovenian
+<a href={translatePath("/about")}>About</a>; // "/sl/o-projektu" for Slovenian
 ```
 
 #### `switchLanguageUrl(currentUrl: URL, targetLang: string)`
@@ -234,7 +255,8 @@ Pattern rules:
 
 - Fixed param names: "about", "dyn_routing", "subpage2"
 - Trailing catch‑all: prefix with `...` and put it last (e.g., "...index", "...subpage1", "...blog")
-- Missing segments become `undefined` automatically (as Astro expects)
+- Missing segments become `undefined` automatically (as Astro expects) – for the catch-all and for a fixed param at the root of the default language
+- Every entry gets `props.lang`; `extraProps(lang)` is spread after it, so it can add (or override) props
 - Respects `defaultLang` and `showDefaultLang`
 
 Examples:
@@ -265,9 +287,9 @@ export function getStaticPaths() {
   return buildLocalizedStaticPaths("/blog", ["...blog"]);
 }
 
-// Optional: extra props per language
+// Optional: extra props per language (contact page)
 export function getStaticPaths() {
-  return buildLocalizedStaticPaths("/services", ["services", "...index"], (lang) => ({ section: "services", lang }));
+  return buildLocalizedStaticPaths("/contact", ["contact", "...index"], (lang) => ({ section: "contact" }));
 }
 ```
 
@@ -276,23 +298,34 @@ Note (pagination): the pagination route uses this helper to resolve the localize
 ### 4. `src/data/navigationData.ts` - Navigation
 
 ```typescript
+// Excerpt – see src/data/navigationData.ts for the full list
 const navigationData = [
     {
-        label: "menu.list.home", // Translation key
+        label: "menu.list.home", // Translation key (common.json)
         href: "/", // English path (default)
         children: [],
     },
     {
-        label: "menu.list.service",
-        href: "/services",
+        label: "menu.list.about",
+        href: "/about",
+        children: [],
+    },
+    {
+        label: "menu.list.dynamicRouting",
+        href: "/dynamic-routing",
         children: [
             {
                 label: "menu.list.subpage-1",
-                href: "/services/service-1",
+                href: "/dynamic-routing/subpage-1",
+            },
+            {
+                label: "menu.list.subpage-2",
+                href: "/dynamic-routing/subpage-2",
             },
         ],
     },
 ];
+export default navigationData;
 ```
 
 > **Note**: URLs in navigation are always in English because they're automatically localized via `translatePath()`.
@@ -304,15 +337,19 @@ const navigationData = [
 ```
 src/locales/
 ├── en/
-│   ├── common.json    # Shared translations (navigation, footer)
-│   ├── main.json      # Main page
-│   ├── about.json     # About page
-│   └── blog.json      # Blog page
+│   ├── common.json    # Shared translations (navigation, footer, 404)
+│   ├── main.json      # Home page
+│   ├── blog.json      # Blog pages
+│   ├── routing.json   # Dynamic routing examples
+│   ├── contact.json   # Contact form + validation messages
+│   └── component.json # Svelte component example
 └── sl/
     ├── common.json
     ├── main.json
-    ├── about.json
-    └── blog.json
+    ├── blog.json
+    ├── routing.json
+    ├── contact.json
+    └── component.json
 ```
 
 ### 2. Translation File Example (`common.json`)
@@ -342,7 +379,7 @@ import { useTranslations } from "@i18n/utils";
 const t = useTranslations(lang);
 ---
 
-<h1>{t("main:hero.title")}</h1>
+<h1>{t("main:title")}</h1>
 <p>{t("menu.list.home")}</p>
 <footer>{t("footer.made", { what: "Astro" })}</footer>
 ```
@@ -357,13 +394,17 @@ The blog system enables linking posts between different languages. The key quest
 
 Each blog post must have a `linkedContent` identifier in the frontmatter:
 
-**English post** (`en/security-trends.md`):
+**English post** (`en/security-trends-2025.md`):
 
 ```yaml
 ---
 title: "Top Security Trends for 2025"
+description: "A deep dive into the cybersecurity challenges and solutions defining the digital landscape in 2025."
 linkedContent: "security-trends-2025"
-author: "Nik Klemenc"
+author: "Nik Klemenc" # id from authors.json
+pubDate: 2025-03-05
+isDraft: false
+image: "@blogImages/image-2.png"
 ---
 ```
 
@@ -372,26 +413,31 @@ author: "Nik Klemenc"
 ```yaml
 ---
 title: "Glavni varnostni trendi za leto 2025"
+description: "Poglobljeno raziskovanje kibernetskih varnostnih izzivov in rešitev, ki opredeljujejo digitalno pokrajino leta 2025."
 linkedContent: "security-trends-2025" # Same identifier!
 author: "Nik Klemenc"
+pubDate: 2025-03-05
+isDraft: false
+image: "@blogImages/image-2.png"
 ---
 ```
 
 ### 2. Authors with Multilingual Data
 
-The system enables linking authors with blog posts. In this case, a JSON format is used where each author has multilingual data. Under the "position" key, positions are defined in English and Slovenian, which are then dynamically displayed based on the selected language.
+The system enables linking authors with blog posts. In this case, a JSON format is used where each author has multilingual data. Under the "position" key, positions are defined in English and Slovenian, which are then dynamically displayed based on the selected language. The `id` is what blog posts reference in their `author` field (`reference("authors")` in `src/content.config.ts`).
 
 ```json
-{
-    "nik-klemenc": {
+[
+    {
+        "id": "Nik Klemenc",
         "name": "Nik Klemenc",
-        "image": "./nik.jpg",
+        "image": "./user.png",
         "position": {
-            "en": "Full-stack Developer",
-            "sl": "Full-stack razvijalec"
+            "en": "UX/UI Designer & Front-End Developer",
+            "sl": "UX/UI Oblikovalec & Front-end Razvijalec"
         }
     }
-}
+]
 ```
 
 ## 📄 Pagination
@@ -399,17 +445,27 @@ The system enables linking authors with blog posts. In this case, a JSON format 
 The project includes an example of pagination in `[pagination]/[...page].astro`, implemented using Astro’s default `paginate()` and adapted for localized URLs.
 
 ```ts
-// Pagination with Astro's paginate()
-export const getStaticPaths = async ({ paginate }) => {
-    const posts = /* fetch posts and sort per language */ [];
-    return paginate(posts, {
-        pageSize: 4,
-        params: { pagination: "blog-pagination" },
-        props: {
-            /* lang, authors, totals */
-        },
+// Excerpt from [pagination]/[...page].astro
+export const getStaticPaths = (async ({ paginate }) => {
+    // Localized bases per language, e.g.
+    //   en: { pagination: "blog-pagination", page: undefined }
+    //   sl: { pagination: "sl", page: "spletni-dnevnik-paginacija" }
+    const langConfigs = buildLocalizedStaticPaths("/blog-pagination", ["pagination", "...page"]);
+
+    return langConfigs.flatMap(({ params, props }) => {
+        const { pagination, page } = params;
+        const posts = /* fetch and sort posts for props.lang */ [];
+        const pages = paginate(posts, { pageSize: 4, params: { pagination }, props });
+
+        // Page 1 keeps the translated base segment, later pages append the number
+        return pages.map((p) => {
+            const current = p.props.page.currentPage;
+            const pageSeg = p.params.page; // "2", "3", ... (undefined on page 1)
+            const computed = current === 1 ? page : page ? `${page}/${pageSeg}` : pageSeg;
+            return { params: { pagination, page: computed }, props: p.props };
+        });
     });
-};
+}) satisfies GetStaticPaths;
 ```
 
 -   URLs: EN `/blog-pagination`, `/blog-pagination/2`; SL `/sl/spletni-dnevnik-paginacija`, `/sl/spletni-dnevnik-paginacija/2`.
@@ -422,7 +478,9 @@ export const getStaticPaths = async ({ paginate }) => {
 ```astro
 ---
 import { useTranslations, buildLocalizedStaticPaths } from "@i18n/utils";
+import Base from "@layouts/Base.astro";
 
+// Hypothetical page: add "services" to routes.ts and a services.json namespace first
 export function getStaticPaths() {
     return buildLocalizedStaticPaths("/services", ["services", "...index"]);
 }
@@ -438,6 +496,8 @@ const t = useTranslations(lang);
 
 ### 2. Language Switching
 
+The picker navigates with `navigate()` from `astro:transitions/client`, so switching languages keeps the `<ClientRouter />` view transitions instead of forcing a full page reload.
+
 ```astro
 ---
 // LanguagePicker.astro - actual implementation
@@ -450,7 +510,7 @@ const t = useTranslations(currentLang);
 
 // Prepare URLs for all languages
 const languageUrls = await Promise.all(
-    Object.entries(languages).map(async ([lang, label]) => {
+    Object.keys(languages).map(async (lang) => {
         const targetUrl = await switchLanguageUrl(Astro.url, lang);
         const translatedLabel = t(`menu.languages.${lang}`);
         return { lang, label: translatedLabel, targetUrl };
@@ -461,7 +521,7 @@ const languageUrls = await Promise.all(
 <!-- Dropdown selector -->
 <select
     name="language"
-    onchange="window.location.href = this.value"
+    id="language"
     aria-label={t("menu.languagesText.selectLanguage")}
 >
     {languageUrls.map(({ lang, label, targetUrl }) => (
@@ -473,14 +533,29 @@ const languageUrls = await Promise.all(
         </option>
     ))}
 </select>
+
+<script>
+    import { navigate } from "astro:transitions/client";
+
+    // Delegated listener survives <ClientRouter /> page swaps;
+    // navigate() keeps view transitions instead of a full reload
+    document.addEventListener("change", (event) => {
+        const el = event.target;
+        if (el instanceof HTMLSelectElement && el.id === "language") {
+            navigate(el.value);
+        }
+    });
+</script>
 ```
 
 ### 3. Localized Links
 
 ```astro
 ---
-import { useTranslatedPath } from "@i18n/utils";
+import { getLangFromUrl, useTranslations, useTranslatedPath } from "@i18n/utils";
 
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 const translatePath = useTranslatedPath(lang);
 ---
 
@@ -526,11 +601,12 @@ Astro doesn't provide fully localized, per-segment URLs with content-linked slug
 
 **How do I add a new language?**
 
-1. Add the language to `src/i18n/ui.ts` (`languages`).
-2. Create translation files in `src/locales/[lang]/...`.
+1. Add the language to `languages` and `locales` (BCP-47 tag) in `src/i18n/ui.ts`.
+2. Create translation files in `src/locales/[lang]/` (one file per namespace).
 3. Add route mappings in `src/i18n/routes.ts` for any segments you localize.
+4. Extend the places that still enumerate languages: `position: { en, sl }` in `src/content.config.ts` and `authors.json`, the `lang as "en" | "sl"` casts in the blog and pagination pages, and the message sets in `src/actions/index.ts`.
 
-No changes to page files are required — all `getStaticPaths()` use `useTranslatedPath()` and automatically pick up the new language.
+Page routes need no changes — every `getStaticPaths()` goes through `buildLocalizedStaticPaths()` and picks up the new language automatically.
 
 **How does language switching work for blog posts?**
 

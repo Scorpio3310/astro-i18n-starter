@@ -23,32 +23,41 @@ Projekt implementira sistem internacionalizacije (i18n), ki omogoča:
 
 ```
 src/
-├── components/           # Komponente (Header, Footer, LanguagePicker)
-├── content/              # Vsebina (blogi, avtorji)
+├── actions/              # Astro Actions (obdelava kontaktnega obrazca)
+│   └── index.ts
+├── assets/               # Logotip in drugi bundlani viri
+├── components/           # Komponente (Header, Footer, LanguagePicker, Pagination, Counter.svelte)
+├── content/              # Vsebinske zbirke (blog, avtorji)
 │   ├── blog/
 │   │   ├── en/           # Angleške objave
-│   │   └── sl/           # Slovenske objave
-│   └── authors/          # Podatki o avtorjih
-├── data/                 # Navigacijski podatki
-│   └── navigationData.ts
+│   │   ├── sl/           # Slovenske objave
+│   │   └── images/       # Slike objav
+│   └── authors/          # Podatki o avtorjih (authors.json)
+├── content.config.ts     # Sheme zbirk (blog, authors)
+├── data/                 # Navigacijski podatki + predloge robots.txt
+│   ├── navigationData.ts
+│   └── robots/
 ├── i18n/                 # Sistem internacionalizacije
 │   ├── routes.ts         # Prevodi poti
 │   ├── ui.ts             # Konfiguracija jezikov
 │   └── utils.ts          # Pomožne funkcije
-├── layouts/              # Osnovni izgled
+├── layouts/              # Osnovni izgled (head, hreflang, SEO)
 ├── locales/              # Prevodne datoteke
 │   ├── en/               # Angleški prevodi
 │   └── sl/               # Slovenski prevodi
 ├── pages/                # Strani z dinamičnim usmerjanjem
-│   ├── [about]/          # O nas strani
+│   ├── [about]/          # O projektu
 │   │   ├── [...index].astro
 │   │   ├── _about-en.mdx
 │   │   └── _about-sl.mdx
 │   ├── [blog]/           # Podrobne blog strani
 │   │   └── [...slug].astro
+│   ├── [contact]/        # Kontaktna stran (obrazec z Astro Actions)
+│   │   └── [...index].astro
 │   ├── [dyn_routing]/    # Primeri dinamičnega usmerjanja
 │   │   ├── [subpage2]/
 │   │   │   └── [...index].astro
+│   │   ├── [...index].astro
 │   │   └── [...subpage1].astro
 │   ├── [pages]/          # Splošne strani
 │   │   ├── [...index].astro
@@ -57,22 +66,23 @@ src/
 │   ├── [pagination]/     # Primeri paginacije
 │   │   └── [...page].astro
 │   ├── [...blog].astro   # Seznam blog objav
-│   ├── [...contact].astro # Kontakt stran
 │   ├── [...index].astro  # Domača stran
-│   └── 404.astro         # Napaka stran
-└── styles/              # Stilske datoteke
+│   ├── 404.astro         # Stran z napako
+│   └── robots.txt.ts     # robots.txt endpoint
+├── styles/               # Stilske datoteke
+└── utils/                # Pomožne funkcije (formatDate)
 ```
 
 ## 🔀 Kako deluje dinamično usmerjanje
 
 ### 1. Struktura URL-jev
 
-| Vzorec strani              | Angleški URL | Slovenski URL                | Opis         |
-| -------------------------- | ------------ | ---------------------------- | ------------ |
-| `[...index].astro`         | `/`          | `/sl/`                       | Domača stran |
-| `[about]/[...index].astro` | `/about`     | `/sl/o-projektu`             | O nas        |
-| `[...contact].astro`       | `/contact`   | `/sl/kontakt`                | Kontakt      |
-| `[blog]/[...slug].astro`   | `/blog/post` | `/sl/spletni-dnevnik/objava` | Blog objave  |
+| Vzorec strani                | Angleški URL | Slovenski URL                | Opis         |
+| ---------------------------- | ------------ | ---------------------------- | ------------ |
+| `[...index].astro`           | `/`          | `/sl/`                       | Domača stran |
+| `[about]/[...index].astro`   | `/about`     | `/sl/o-projektu`             | O nas        |
+| `[contact]/[...index].astro` | `/contact`   | `/sl/kontakt`                | Kontakt      |
+| `[blog]/[...slug].astro`     | `/blog/post` | `/sl/spletni-dnevnik/objava` | Blog objave  |
 
 ### 2. Vizualen prikaz usmerjanja
 
@@ -83,13 +93,13 @@ Datoteka: [about]/[...index].astro
 │   ├── URL: /about
 │   ├── Parametri: { about: "about", index: undefined }
 │   ├── Props: { lang: "en" }
-│   └── Vsebina: _about-en.md
+│   └── Vsebina: _about-en.mdx
 │
 └── Slovenska pot
     ├── URL: /sl/o-projektu
     ├── Parametri: { about: "sl", index: "o-projektu" }
     ├── Props: { lang: "sl" }
-    └── Vsebina: _about-sl.md
+    └── Vsebina: _about-sl.mdx
 ```
 
 ### 3. Strukture strani
@@ -134,16 +144,19 @@ export function getStaticPaths() {
 
 ### 1. `src/i18n/routes.ts` - Prevodi poti
 
-Ta datoteka definira preslikave med angleškimi in lokaliziranimi potmi:
+Ta datoteka definira preslikave med angleškimi in lokaliziranimi potmi. Privzeti jezik (`en`) obdrži izvirna imena poti, zato nima vnosa:
 
 ```typescript
 export const routes: Record<string, Record<string, string>> = {
     sl: {
         about: "o-projektu",
         blog: "spletni-dnevnik",
-        services: "storitve",
+        contact: "kontakt",
+        "dynamic-routing": "dinamicno-usmerjanje",
+        "blog-pagination": "spletni-dnevnik-paginacija",
         pages: "strani",
-        contact: "stik",
+        "subpage-1": "podstran-1",
+        "subpage-2": "podstran-2",
     },
 };
 ```
@@ -155,6 +168,7 @@ export const routes: Record<string, Record<string, string>> = {
 Ta datoteka vsebuje ključne konfiguracije za jezikovno podporo:
 
 -   **`languages`** - definira podprte jezike in njihove oznake; tukaj lahko dodate nov jezik
+-   **`locales`** - BCP-47 oznaka za vsak jezik (`en-US`, `sl-SI`); uporablja se za `Intl` oblikovanje datumov (`formatDate`) in meta oznako `og:locale`
 -   **`defaultLang`** - določa privzeti jezik aplikacije (trenutno še ni mogoče dinamično spreminjati)
 -   **`showDefaultLang`** - nadzoruje, ali se privzeti jezik prikaže v URL-ju (npr. "/en/" namesto "/")
 
@@ -164,6 +178,11 @@ Ta datoteka vsebuje ključne konfiguracije za jezikovno podporo:
 export const languages = {
     en: "English",
     sl: "Slovenian",
+};
+
+export const locales: Record<keyof typeof languages, string> = {
+    en: "en-US",
+    sl: "sl-SI",
 };
 
 export const defaultLang = "en";
@@ -223,7 +242,7 @@ const navigationData = [
         children: [],
     },
     {
-        label: "menu.list.service",
+        label: "menu.list.services",
         href: "/services",
         children: [
             {
@@ -244,15 +263,19 @@ const navigationData = [
 ```
 src/locales/
 ├── en/
-│   ├── common.json    # Skupni prevodi (navigacija, footer)
-│   ├── main.json      # Glavna stran
-│   ├── about.json     # O nas stran
-│   └── blog.json      # Blog stran
+│   ├── common.json    # Skupni prevodi (navigacija, footer, 404)
+│   ├── main.json      # Domača stran
+│   ├── blog.json      # Blog strani
+│   ├── routing.json   # Primeri dinamičnega usmerjanja
+│   ├── contact.json   # Kontaktni obrazec + sporočila validacije
+│   └── component.json # Primer Svelte komponente
 └── sl/
     ├── common.json
     ├── main.json
-    ├── about.json
-    └── blog.json
+    ├── blog.json
+    ├── routing.json
+    ├── contact.json
+    └── component.json
 ```
 
 ### 2. Primer prevodne datoteke (`common.json`)
@@ -295,13 +318,17 @@ Blog sistem omogoča povezovanje objav med različnimi jeziki. Ključno vprašan
 
 **🔗 Rešitev**: Vsaka blog objava mora imeti `linkedContent` identifikator v frontmatter-ju. Ta identifikator povezuje objave v različnih jezikih, ki obravnavajo isto temo. Ko uporabnik preklopi jezik, sistem uporabi ta identifikator za iskanje ustrezne objave v ciljnem jeziku.
 
-**Angleška objava** (`en/security-trends.md`):
+**Angleška objava** (`en/security-trends-2025.md`):
 
 ```yaml
 ---
 title: "Top Security Trends for 2025"
+description: "A deep dive into the cybersecurity challenges and solutions defining the digital landscape in 2025."
 linkedContent: "security-trends-2025"
-author: "Nik Klemenc"
+author: "Nik Klemenc" # id iz authors.json
+pubDate: 2025-03-05
+isDraft: false
+image: "@blogImages/image-2.png"
 ---
 ```
 
@@ -310,26 +337,31 @@ author: "Nik Klemenc"
 ```yaml
 ---
 title: "Glavni varnostni trendi za leto 2025"
+description: "Poglobljeno raziskovanje kibernetskih varnostnih izzivov in rešitev, ki opredeljujejo digitalno pokrajino leta 2025."
 linkedContent: "security-trends-2025" # Isti identifikator!
 author: "Nik Klemenc"
+pubDate: 2025-03-05
+isDraft: false
+image: "@blogImages/image-2.png"
 ---
 ```
 
 ### 2. Avtorji z večjezičnimi podatki
 
-Sistem omogoča povezovanje avtorjev z blog objavami. V tem primeru je uporabljen JSON format, kjer ima vsak avtor večjezične podatke. Pod ključem "position" so definirane pozicije v angleščini in slovenščini, ki se nato dinamično prikazujejo glede na izbrani jezik.
+Sistem omogoča povezovanje avtorjev z blog objavami. V tem primeru je uporabljen JSON format, kjer ima vsak avtor večjezične podatke. Pod ključem "position" so definirane pozicije v angleščini in slovenščini, ki se nato dinamično prikazujejo glede na izbrani jezik. Vrednost `id` je tista, na katero se blog objave sklicujejo v polju `author` (`reference("authors")` v `src/content.config.ts`).
 
 ```json
-{
-    "nik-klemenc": {
+[
+    {
+        "id": "Nik Klemenc",
         "name": "Nik Klemenc",
-        "image": "./nik.jpg",
+        "image": "./user.png",
         "position": {
-            "en": "Full-stack Developer",
-            "sl": "Full-stack razvijalec"
+            "en": "UX/UI Designer & Front-End Developer",
+            "sl": "UX/UI Oblikovalec & Front-end Razvijalec"
         }
     }
-}
+]
 ```
 
 ## 📄 Paginacija
@@ -378,6 +410,8 @@ const t = useTranslations(lang);
 
 ### 2. Preklapljanje jezikov
 
+Preklop uporablja `navigate()` iz `astro:transitions/client`, zato ohrani view transitions `<ClientRouter />` namesto polnega ponovnega nalaganja strani.
+
 ```astro
 ---
 // LanguagePicker.astro - dejanska implementacija
@@ -390,7 +424,7 @@ const t = useTranslations(currentLang);
 
 // Pripravi URL-je za vse jezike
 const languageUrls = await Promise.all(
-    Object.entries(languages).map(async ([lang, label]) => {
+    Object.keys(languages).map(async (lang) => {
         const targetUrl = await switchLanguageUrl(Astro.url, lang);
         const translatedLabel = t(`menu.languages.${lang}`);
         return { lang, label: translatedLabel, targetUrl };
@@ -401,7 +435,7 @@ const languageUrls = await Promise.all(
 <!-- Dropdown selektor -->
 <select
     name="language"
-    onchange="window.location.href = this.value"
+    id="language"
     aria-label={t("menu.languagesText.selectLanguage")}
 >
     {languageUrls.map(({ lang, label, targetUrl }) => (
@@ -413,15 +447,29 @@ const languageUrls = await Promise.all(
         </option>
     ))}
 </select>
+
+<script>
+    import { navigate } from "astro:transitions/client";
+
+    // Delegiran listener preživi zamenjave strani prek <ClientRouter />;
+    // navigate() ohrani view transitions namesto polnega ponovnega nalaganja
+    document.addEventListener("change", (event) => {
+        const el = event.target;
+        if (el instanceof HTMLSelectElement && el.id === "language") {
+            navigate(el.value);
+        }
+    });
+</script>
 ```
 
 ### 3. Lokalizirane povezave
 
 ```astro
 ---
-import { getLangFromUrl, useTranslatedPath } from "@i18n/utils";
+import { getLangFromUrl, useTranslations, useTranslatedPath } from "@i18n/utils";
 
 const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 const translatePath = useTranslatedPath(lang);
 ---
 
@@ -463,7 +511,7 @@ const translatePath = useTranslatedPath(lang);
 
 **Kako dodam nov jezik?**
 
-1. Dodajte jezik v `src/i18n/ui.ts`
+1. Dodajte jezik v `languages` in `locales` (BCP-47 oznaka) v `src/i18n/ui.ts`
 2. Ustvarite mapo prevodov v `src/locales/[lang]/`
 3. Dodajte preslikave poti v `src/i18n/routes.ts`
 4. Posodobite `getStaticPaths()` v vseh datotekah strani

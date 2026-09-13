@@ -16,7 +16,7 @@ Choose the approach based on your needs:
 ### 🗂️ Pattern A: `[...pages].astro` (Single File Pattern)
 
 **When to use:** Simple pages without subpages  
-**Examples:** `[...index].astro`, `[...blog].astro`, `[...contact].astro`
+**Examples:** `[...index].astro`, `[...blog].astro`
 
 ```javascript
 export function getStaticPaths() {
@@ -29,7 +29,7 @@ export function getStaticPaths() {
             props: { lang: "en" },
         },
         // Slovenian route: /sl/strani
-        // [...pages] = "sl/strani" captures both language prefix and path
+        // [...pages] = "/sl/strani" captures both language prefix and path
         // Creates URL: /sl/strani
         {
             params: { pages: "/sl/strani" },
@@ -42,7 +42,7 @@ export function getStaticPaths() {
 ### 📁 Pattern B: `[pages]/[...index].astro` (Folder Pattern)
 
 **When to use:** Pages with additional files (MDX, images, components)
-**Examples:** `[about]/[...index].astro`, `[services]/[...index].astro`
+**Examples:** `[about]/[...index].astro`, `[pages]/[...index].astro`, `[contact]/[...index].astro`
 **Advantages:** Organized structure, easier maintenance
 
 ```javascript
@@ -85,8 +85,8 @@ Let's add a new page `/services` → `/sl/storitve`:
 
 ### Step 2: Configure getStaticPaths
 
-```javascript
-import { useTranslations } from "@i18n/utils";
+```astro
+---
 import Base from "@layouts/Base.astro";
 import "@styles/markdown.css";
 
@@ -104,7 +104,6 @@ export function getStaticPaths() {
 }
 
 const { lang } = Astro.props;
-const t = useTranslations(lang);
 const { Content, frontmatter } = await import(`./_services-${lang}.mdx`);
 ---
 
@@ -114,8 +113,8 @@ const { Content, frontmatter } = await import(`./_services-${lang}.mdx`);
         description: frontmatter?.description,
         keywords: frontmatter?.keywords,
     }}
-    >
-    <section id="md-content">
+>
+    <section id="md-content" aria-label="Page content">
         <Content />
     </section>
 </Base>
@@ -128,7 +127,12 @@ export const routes: Record<string, Record<string, string>> = {
     sl: {
         about: "o-projektu",
         blog: "spletni-dnevnik",
+        contact: "kontakt",
+        "dynamic-routing": "dinamicno-usmerjanje",
+        "blog-pagination": "spletni-dnevnik-paginacija",
         pages: "strani",
+        "subpage-1": "podstran-1",
+        "subpage-2": "podstran-2",
         services: "storitve", // ← Matches "storitve" above
     },
 };
@@ -151,7 +155,9 @@ const navigationData = [
 -   `_services-en.mdx`
 -   `_services-sl.mdx`
 
-### Step 6: Add Translations (optional, if not reading from MDX)
+### Step 6: Add Translations
+
+`services.json` is optional when the page content comes from MDX. The navigation label in `common.json` is required, otherwise `t("menu.list.services")` renders the raw key.
 
 **In `locales/en/services.json`:**
 
@@ -161,7 +167,6 @@ const navigationData = [
         "title": "Our Services",
         "description": "Professional services we offer"
     },
-    // If needed, add more translations here
     "title": "Our Services",
     "description": "We provide comprehensive solutions for your business needs."
 }
@@ -175,28 +180,31 @@ const navigationData = [
         "title": "Naše storitve",
         "description": "Strokovne storitve, ki jih ponujamo"
     },
-    // If needed, add more translations here
     "title": "Naše storitve",
     "description": "Zagotavljamo celovite rešitve za vaše poslovne potrebe."
 }
 ```
 
-**Add to `locales/en/menu.json`:**
+**Add the navigation label to `locales/en/common.json` (inside `menu.list`):**
 
 ```json
 {
-    "list": {
-        "services": "Services"
+    "menu": {
+        "list": {
+            "services": "Services"
+        }
     }
 }
 ```
 
-**Add to `locales/sl/menu.json`:**
+**Add the navigation label to `locales/sl/common.json` (inside `menu.list`):**
 
 ```json
 {
-    "list": {
-        "services": "Storitve"
+    "menu": {
+        "list": {
+            "services": "Storitve"
+        }
     }
 }
 ```
@@ -209,7 +217,7 @@ const navigationData = [
 | 🇸🇮 Slovenian         | `/sl/storitve`    | ✅    |
 | 🧭 Navigation        | Automatic         | ✅    |
 | 🔄 Language switcher | Switches language | ✅    |
-| 🍞 Breadcrumbs       | Shows path        | ✅    |
+| 🔗 hreflang + sitemap | Automatic         | ✅    |
 
 **Congratulations! New page successfully added! 🎉**
 

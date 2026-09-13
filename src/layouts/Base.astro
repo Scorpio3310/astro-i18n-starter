@@ -1,7 +1,7 @@
 ---
 // Imports
 import { getLangFromUrl, switchLanguageUrl } from "@i18n/utils";
-import { languages, defaultLang } from "@i18n/ui";
+import { languages, defaultLang, locales } from "@i18n/ui";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import "@styles/global.css";
@@ -49,12 +49,21 @@ interface Props {
 
 //Props
 const { meta, title } = Astro.props as Props;
+
+// Absolute Open Graph image URL (crawlers require absolute URLs)
+const ogImage = new URL(meta.image || "/og-image.jpg", Astro.site).href;
+
+// Open Graph locale of this page + alternates that actually exist for it
+const toOgLocale = (l: string) =>
+    (locales[l as keyof typeof locales] ?? l).replace("-", "_");
+const ogLocale = toOgLocale(lang);
+const ogLocaleAlternates = hreflangAlternates
+    .filter(({ hreflang }) => hreflang !== lang && hreflang !== "x-default")
+    .map(({ hreflang }) => toOgLocale(hreflang));
 ---
 <html lang={lang}>
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width" />
-        <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#FFFFFF" />
         
@@ -81,14 +90,20 @@ const { meta, title } = Astro.props as Props;
         <meta property="og:title" content={title} />
         <meta property="og:description" content={meta.description} />
         <meta property="og:type" content={meta.type || "website"} />
-        <meta property="og:image" content={meta.image || "/og-image.jpg"} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:url" content={meta.url || Astro.url.href} />
+        <meta property="og:locale" content={ogLocale} />
+        {
+            ogLocaleAlternates.map((locale) => (
+                <meta property="og:locale:alternate" content={locale} />
+            ))
+        }
         
         <!-- Twitter Tags -->
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={meta.description} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content={meta.image || "/og-image.jpg"} />
+        <meta name="twitter:image" content={ogImage} />
         
         <!-- Sitemap & Robots -->
         <link rel="sitemap" href="/sitemap-index.xml" />
@@ -104,7 +119,7 @@ const { meta, title } = Astro.props as Props;
                 name: title,
                 description: meta.description,
                 url: meta.url || Astro.url.href,
-                image: meta.image || "/og-image.jpg",
+                image: ogImage,
             })}
         />
     </head>

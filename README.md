@@ -17,7 +17,7 @@ git checkout feat/i18n-routing-helper
 ---
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Astro](https://img.shields.io/badge/Astro-7.1.3-purple.svg)
+![Astro](https://img.shields.io/badge/Astro-7.3.2-purple.svg)
 
 **Keywords:** `astro` • `i18n` • `internationalization` • `multilingual` • `url localization` • `seo` • `typescript` • `tailwind css` • `static site generation`
 
@@ -50,7 +50,7 @@ This project implements a comprehensive internationalization (i18n) system that 
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Astro 7.1](https://astro.build/) - Static site generator
+- **Framework**: [Astro 7.3](https://astro.build/) - Static site generator
 - **Adapter**: [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/) - SSR adapter for dynamic routes (you can use any other adapter)
 - **Components**: [Svelte 5](https://svelte.dev/) - Interactive components with runes
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
@@ -210,7 +210,7 @@ pnpm run build
 pnpm run preview
 ```
 
-The site generates static files optimized for any hosting provider (Netlify, Vercel, Cloudflare Pages, etc.).
+`pnpm run build` produces a Cloudflare Worker (`dist/server`) plus static assets (`dist/client`), as configured in `wrangler.jsonc`. Deploy it with `pnpm exec wrangler deploy`. To target another host, swap the adapter in `astro.config.mjs`.
 
 ---
 

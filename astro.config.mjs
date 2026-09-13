@@ -13,6 +13,9 @@ export default defineConfig({
   // astro:env can't be used in the config file itself, so process.env stays here
   site: process.env.PRODUCTION_DOMAIN || "http://localhost:4321",
 
+  // No Astro.session usage: skip the KV session driver and its auto-provisioning on deploy
+  session: false,
+
   env: {
       schema: {
           PRODUCTION_DOMAIN: envField.string({
@@ -26,11 +29,6 @@ export default defineConfig({
   integrations: [
       mdx(),
       sitemap({
-          customPages: [
-              process.env.PRODUCTION_DOMAIN || "http://localhost:4321", // home page - priority 1.0
-              (process.env.PRODUCTION_DOMAIN || "http://localhost:4321") +
-                  "/sl/", // Slovenian home - priority 1.0
-          ],
           changefreq: "monthly",
           priority: 0.7,
           lastmod: new Date(),

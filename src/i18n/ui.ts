@@ -15,6 +15,15 @@ export const languages = {
 };
 
 /**
+ * BCP-47 locale tags per language
+ * Used for Intl date formatting and og:locale (with "-" replaced by "_")
+ */
+export const locales: Record<keyof typeof languages, string> = {
+    en: "en-US",
+    sl: "sl-SI",
+};
+
+/**
  * Default language for fallback translations
  */
 export const defaultLang = "en";

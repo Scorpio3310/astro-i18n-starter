@@ -150,9 +150,9 @@ const translatePath = useTranslatedPath(lang);
                                         <time
                                             class="date block"
                                             datetime={post.data.pubDate.toISOString()}
-                                            aria-label={`${formatDate(post.data.pubDate)}`}
+                                            aria-label={`${formatDate(post.data.pubDate, lang)}`}
                                         >
-                                            {formatDate(post.data.pubDate)}
+                                            {formatDate(post.data.pubDate, lang)}
                                         </time>
 
                                         {author && (

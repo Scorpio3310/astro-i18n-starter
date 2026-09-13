@@ -45,8 +45,8 @@ export function useTranslations(lang: keyof typeof ui) {
         };
 
         const translation =
-            getNestedValue(ui[lang]?.[namespace], translationKey) ||
-            getNestedValue(ui[defaultLang]?.[namespace], translationKey) ||
+            getNestedValue(ui[lang]?.[namespace], translationKey) ??
+            getNestedValue(ui[defaultLang]?.[namespace], translationKey) ??
             key;
 
         return params && typeof translation === "string"
@@ -144,17 +144,19 @@ function interpolateParams(
 }
 
 /**
- * Builds content links automatically from blog posts with linkedContent frontmatter
- * Returns mapping of linkedContent -> { lang: "lang/slug" }
+ * Mapping of linkedContent -> { lang: "lang/slug" }
  */
-export async function buildContentLinks(): Promise<
-    Record<string, Record<string, string>>
-> {
+type ContentLinks = Record<string, Record<string, string>>;
+
+/**
+ * Scans the blog collection and groups posts by their linkedContent frontmatter
+ */
+async function loadContentLinks(): Promise<ContentLinks> {
     const allPosts = await getCollection(
         "blog",
         (entry) => !entry.data.isDraft
     );
-    const links: Record<string, Record<string, string>> = {};
+    const links: ContentLinks = {};
 
     allPosts.forEach((post) => {
         const { linkedContent } = post.data;
@@ -171,35 +173,38 @@ export async function buildContentLinks(): Promise<
     return links;
 }
 
+let contentLinksPromise: Promise<ContentLinks> | undefined;
+
 /**
- * Finds content group for given collection ID using dynamic content links
+ * Builds content links automatically from blog posts with linkedContent frontmatter
+ * Returns mapping of linkedContent -> { lang: "lang/slug" }
+ *
+ * Memoised in production (content is fixed at build time), so the collection is
+ * scanned once instead of on every hreflang / language picker render.
+ * In dev the collection is re-read so content edits stay hot-reloadable.
  */
-async function findContentGroup(collectionId: string): Promise<string | null> {
-    const dynamicLinks = await buildContentLinks();
-    return (
-        Object.entries(dynamicLinks).find(([, links]) =>
-            Object.values(links).includes(collectionId)
-        )?.[0] || null
-    );
+export function buildContentLinks(): Promise<ContentLinks> {
+    if (import.meta.env.PROD && contentLinksPromise) {
+        return contentLinksPromise;
+    }
+    const promise = loadContentLinks();
+    if (import.meta.env.PROD) {
+        contentLinksPromise = promise;
+    }
+    return promise;
 }
 
 /**
- * Checks if route is a blog route in any language
+ * Checks if route is a blog route in any language (derived from the routes map)
  */
 function isBlogRoute(route: string): boolean {
-    return route === "blog" || route === "spletni-dnevnik";
-}
-
-/**
- * Converts language to collection ID format (defaultLang -> "en")
- */
-function getLangCode(lang: string): string {
-    return lang === defaultLang ? "en" : lang;
+    return getOriginalRouteName(route) === "blog";
 }
 
 /**
  * Handles language switching for blog posts using content links mapping
  * Maps between different slugs per language (e.g., security-trends <-> varnostni-trendi)
+ * Post IDs are "<lang>/<slug>", so the language code is used directly
  */
 async function handleBlogPostTranslation(
     currentLang: string,
@@ -208,23 +213,22 @@ async function handleBlogPostTranslation(
     slug: string,
     fallbackPath: string
 ): Promise<string> {
-    const currentPostId = `${getLangCode(currentLang)}/${slug}`;
-    const contentGroup = await findContentGroup(currentPostId);
+    const currentPostId = `${currentLang}/${slug}`;
+    const contentLinks = await buildContentLinks();
 
-    if (contentGroup) {
-        const dynamicLinks = await buildContentLinks();
-        const targetPostId =
-            dynamicLinks[contentGroup]?.[getLangCode(targetLang)];
+    const contentGroup = Object.values(contentLinks).find((links) =>
+        Object.values(links).includes(currentPostId)
+    );
+    const targetPostId = contentGroup?.[targetLang];
 
-        if (targetPostId) {
-            const targetSlug = targetPostId.split("/")[1];
-            const targetRouteName = translateRouteName(baseRoute, targetLang);
-            const targetPath = `/${targetRouteName}/${targetSlug}`;
+    if (targetPostId) {
+        const targetSlug = targetPostId.split("/")[1];
+        const targetRouteName = translateRouteName(baseRoute, targetLang);
+        const targetPath = `/${targetRouteName}/${targetSlug}`;
 
-            return targetLang === defaultLang
-                ? targetPath
-                : `/${targetLang}${targetPath}`;
-        }
+        return targetLang === defaultLang
+            ? targetPath
+            : `/${targetLang}${targetPath}`;
     }
 
     return fallbackPath;

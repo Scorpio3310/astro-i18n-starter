@@ -40,7 +40,6 @@ const languageUrls = await Promise.all(
     aria-haspopup="listbox"
     aria-expanded="false"
     class="w-32 px-2 py-2 border border-black/10 rounded cursor-pointer"
-    onchange="window.location.href = this.value"
 >
     {
         languageUrls.map(({ lang, label, targetUrl }) => (
@@ -54,3 +53,21 @@ const languageUrls = await Promise.all(
         ))
     }
 </select>
+
+<script>
+    import { navigate } from "astro:transitions/client";
+
+    // Delegated listener: bundled scripts run once per session, and delegation
+    // survives <ClientRouter /> page swaps without re-binding on astro:page-load.
+    // navigate() keeps view transitions instead of a full page reload.
+    document.addEventListener("change", (event) => {
+        const el = event.target;
+        if (
+            el instanceof HTMLSelectElement &&
+            el.id === "language" &&
+            el.value.startsWith("/")
+        ) {
+            navigate(el.value);
+        }
+    });
+</script>

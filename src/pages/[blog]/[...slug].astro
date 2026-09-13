@@ -52,7 +52,7 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 // Props
-const { post, author } = Astro.props;
+const { post, author, lang } = Astro.props;
 
 // Render the MD content of the blog post
 const { Content } = await render(post);
@@ -117,9 +117,9 @@ const { Content } = await render(post);
                 <time
                     class="date"
                     datetime={post.data.pubDate.toISOString()}
-                    aria-label={`${formatDate(post.data.pubDate)}`}
+                    aria-label={`${formatDate(post.data.pubDate, lang)}`}
                 >
-                    {formatDate(post.data.pubDate)}
+                    {formatDate(post.data.pubDate, lang)}
                 </time>
             </div>
 

@@ -50,7 +50,7 @@ const t = useTranslations(lang);
         keywords: t("routing:subpages.subpage-2.keywords"),
     }}
 >
-    <section id="md-content">
+    <section class="md-content">
         <h1>{t("routing:subpages.subpage-2.title")}</h1>
         <p set:html={t("routing:subpages.subpage-2.description")} />
 
@@ -89,7 +89,7 @@ export function getStaticPaths() {
     ];
 }`}</code></pre>
     </section>
-    <section aria-label={t("component:title")} id="md-content">
+    <section aria-label={t("component:title")} class="md-content">
         <h2>{t("component:title")}</h2>
         <p set:html={t("component:description")} />
         <Counter

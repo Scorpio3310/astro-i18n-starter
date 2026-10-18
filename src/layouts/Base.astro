@@ -55,7 +55,7 @@ const ogImage = new URL(meta.image || "/og-image.jpg", Astro.site).href;
 
 // Open Graph locale of this page + alternates that actually exist for it
 const toOgLocale = (l: string) =>
-    (locales[l as keyof typeof locales] ?? l).replace("-", "_");
+    (Object.hasOwn(locales, l) ? locales[l as keyof typeof locales] : l).replace("-", "_");
 const ogLocale = toOgLocale(lang);
 const ogLocaleAlternates = hreflangAlternates
     .filter(({ hreflang }) => hreflang !== lang && hreflang !== "x-default")
@@ -122,11 +122,13 @@ const ogLocaleAlternates = hreflangAlternates
                 image: ogImage,
             })}
         />
+
+        {/* View transitions (client-side router) */}
+        <ClientRouter />
     </head>
     <body>
-        <ClientRouter />
         <Header />
-        <main id="main-content" role="main">
+        <main id="main-content">
             <slot />
         </main>
         <Footer />

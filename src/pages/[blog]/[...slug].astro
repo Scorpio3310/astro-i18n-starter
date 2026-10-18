@@ -14,16 +14,19 @@ export const getStaticPaths = (async () => {
     const authorsRaw = await getCollection("authors");
 
     // Define language configurations
+    // [blog] holds a single segment ("blog" or the "sl" prefix),
+    // [...slug] holds the rest: "<slug>" or "spletni-dnevnik/<slug>"
     const langConfigs = {
-        en: { prefix: "en/", blogPath: "/blog" },
-        sl: { prefix: "sl/", blogPath: "/sl/spletni-dnevnik" },
+        en: { prefix: "en/", blog: "blog", slugPrefix: "" },
+        sl: { prefix: "sl/", blog: "sl", slugPrefix: "spletni-dnevnik/" },
     };
 
     // Create paths for each post in each language
     const createPath = (
         post: (typeof posts)[number],
         lang: "en" | "sl",
-        blogPath: string,
+        blog: string,
+        slugPrefix: string,
     ) => {
         const author = authorsRaw.find((a) => a.id === post.data.author.id);
         const localizedAuthor = author && {
@@ -38,16 +41,19 @@ export const getStaticPaths = (async () => {
         };
 
         return {
-            params: { blog: blogPath, slug: post.id.split("/")[1] },
+            params: { blog, slug: `${slugPrefix}${post.id.split("/")[1]}` },
             props: { post, lang, author: localizedAuthor },
         };
     };
 
     // Generate and return all paths
-    return Object.entries(langConfigs).flatMap(([lang, { prefix, blogPath }]) =>
-        posts
-            .filter((post) => post.id.startsWith(prefix))
-            .map((post) => createPath(post, lang as "en" | "sl", blogPath))
+    return Object.entries(langConfigs).flatMap(
+        ([lang, { prefix, blog, slugPrefix }]) =>
+            posts
+                .filter((post) => post.id.startsWith(prefix))
+                .map((post) =>
+                    createPath(post, lang as "en" | "sl", blog, slugPrefix)
+                )
     );
 }) satisfies GetStaticPaths;
 
@@ -62,24 +68,24 @@ const { Content } = await render(post);
     title={post?.data?.title}
     meta={{
         description: post?.data?.description,
+        keywords: post?.data?.keywords,
         image: post?.data?.image?.src,
     }}
 >
-    <section role="main" aria-labelledby="article-title">
+    <section aria-labelledby="article-title">
         <article
-            role="article"
             aria-labelledby="article-title"
             aria-describedby="article-meta"
         >
-            <!--Main Article Image-->
+            {/* Main article image (above the fold: priority sets eager/sync/high) */}
             <Image
                 src={post?.data?.image}
                 alt={post.data.imageAlt || post.data.title}
                 class="mb-10"
-                loading="eager"
+                priority
                 quality={"high"}
-                sizes="(min-width: 1024px) 800px, 100vw"
-                role="img"
+                layout="constrained"
+                width={768}
                 transition:name={`${post.data.title}-image`}
             />
 
@@ -88,7 +94,7 @@ const { Content } = await render(post);
                 {post?.data?.title}
             </h1>
 
-            <div id="article-meta" class="author-time" role="contentinfo">
+            <div id="article-meta" class="author-time">
                 {
                     author && (
                         <div class="author" role="group">
@@ -97,10 +103,9 @@ const { Content } = await render(post);
                                 alt={author.data.name}
                                 height={36}
                                 width={36}
-                                loading="eager"
+                                layout="fixed"
                                 quality={"high"}
                                 class="rounded-full"
-                                role="img"
                             />
                             <div>
                                 <h3>{author.data.name}</h3>
@@ -124,7 +129,7 @@ const { Content } = await render(post);
             </div>
 
             <!--Markdown Content-->
-            <section id="md-content" role="main">
+            <section class="md-content">
                 <Content />
             </section>
         </article>

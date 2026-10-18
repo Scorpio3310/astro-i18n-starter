@@ -158,8 +158,10 @@ Detailed documentation with examples is available in the demo site.
 
 ```bash
 # .env
-PRODUCTION_DOMAIN = "https://your-domain.com"  # Used to enable robots.txt
+PRODUCTION_DOMAIN = "https://your-domain.com"  # Used as `site` and to enable indexing in robots.txt
 ```
+
+`astro.config.mjs` reads it with Vite's `loadEnv` (Astro does not load `.env` files in the config). A variable set in the build environment (e.g. Cloudflare Workers Builds) overrides `.env`. Without it, the build falls back to `http://localhost:4321` and `robots.txt` blocks all crawlers.
 
 **Important:** Set your production domain for proper:
 

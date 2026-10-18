@@ -13,17 +13,15 @@ import LanguagePicker from "./LanguagePicker.astro";
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const translatePath = useTranslatedPath(lang);
+
+// Mark the link of the current page (ignores a trailing slash)
+const normalizePath = (path: string) => path.replace(/\/$/, "") || "/";
+const currentPath = normalizePath(Astro.url.pathname);
+const isCurrent = (href: string) =>
+    normalizePath(translatePath(href)) === currentPath;
 ---
 
-<header class="nav-header" role="banner">
-    <!-- Mobile menu toggle (CSS only) -->
-    <input
-        type="checkbox"
-        id="mobile-menu-toggle"
-        class="mobile-menu-checkbox"
-        aria-label="Toggle mobile menu"
-    />
-
+<header class="nav-header">
     <div class="flex items-center justify-between">
         <a
             href={translatePath("/")}
@@ -36,23 +34,29 @@ const translatePath = useTranslatedPath(lang);
             />
         </a>
 
-        <label for="mobile-menu-toggle" class="mobile-menu-toggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </label>
+        {/* Mobile menu toggle (disclosure button, toggled by the script below) */}
+        <button
+            type="button"
+            class="mobile-menu-toggle"
+            aria-expanded="false"
+            aria-controls="main-nav"
+            aria-label={t("menu.toggle")}
+        >
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </button>
     </div>
 
-    <nav class="nav-main" role="navigation" aria-label="Main navigation">
-        <ul class="nav-list" role="menubar">
+    <nav id="main-nav" class="nav-main" aria-label="Main navigation">
+        <ul class="nav-list">
             {
                 navigationData.map((item) => (
-                    <li class="nav-item lg:relative" role="none">
+                    <li class="nav-item lg:relative">
                         <a
                             href={translatePath(item.href)}
                             class="nav-link block"
-                            role="menuitem"
-                            aria-label={t(item.label)}
+                            aria-current={isCurrent(item.href) ? "page" : undefined}
                         >
                             {t(item.label)}
                         </a>
@@ -60,16 +64,14 @@ const translatePath = useTranslatedPath(lang);
                         {item.children?.length > 0 && (
                             <ul
                                 class="nav-dropdown"
-                                role="menu"
                                 aria-label={`${t(item.label)}`}
                             >
                                 {item.children.map((child: any) => (
-                                    <li role="none">
+                                    <li>
                                         <a
                                             href={translatePath(child.href)}
                                             class="nav-dropdown-link"
-                                            role="menuitem"
-                                            aria-label={t(child.label)}
+                                            aria-current={isCurrent(child.href) ? "page" : undefined}
                                         >
                                             {t(child.label)}
                                         </a>
@@ -108,3 +110,31 @@ const translatePath = useTranslatedPath(lang);
         </div>
     </nav>
 </header>
+
+<script>
+    // Delegated listeners: bundled scripts run once, and delegation keeps working
+    // after <ClientRouter /> swaps in a new header (which starts closed again)
+    function setMenuOpen(toggle: Element, open: boolean) {
+        toggle.setAttribute("aria-expanded", String(open));
+        toggle.closest("header")?.toggleAttribute("data-menu-open", open);
+    }
+
+    document.addEventListener("click", (event) => {
+        const toggle = (event.target as Element | null)?.closest(".mobile-menu-toggle");
+        if (toggle) {
+            setMenuOpen(toggle, toggle.getAttribute("aria-expanded") !== "true");
+        }
+    });
+
+    // Escape closes the open menu and returns focus to the toggle
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        const toggle = document.querySelector<HTMLButtonElement>(
+            '.mobile-menu-toggle[aria-expanded="true"]'
+        );
+        if (toggle) {
+            setMenuOpen(toggle, false);
+            toggle.focus();
+        }
+    });
+</script>

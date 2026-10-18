@@ -9,7 +9,7 @@ import { getCollection } from "astro:content";
  */
 export function getLangFromUrl(url: URL) {
     const [, lang] = url.pathname.split("/");
-    if (lang in ui) return lang as keyof typeof ui;
+    if (Object.hasOwn(ui, lang)) return lang as keyof typeof ui;
     return defaultLang;
 }
 
@@ -68,8 +68,8 @@ export function useTranslatedPath(lang: keyof typeof ui) {
         const translatedSegments = segments.map((segment) => {
             const hasTranslation =
                 defaultLang !== l &&
-                routes[l] !== undefined &&
-                routes[l][segment] !== undefined;
+                Object.hasOwn(routes, l) &&
+                Object.hasOwn(routes[l], segment);
             return hasTranslation ? routes[l][segment] : segment;
         });
 
@@ -254,7 +254,9 @@ function getOriginalRouteName(routeName: string): string {
  */
 function translateRouteName(routeName: string, targetLang: string): string {
     const originalRoute = getOriginalRouteName(routeName);
-    return targetLang === defaultLang
-        ? originalRoute
-        : routes[targetLang]?.[originalRoute] || originalRoute;
+    if (targetLang === defaultLang) return originalRoute;
+    const routeMap = Object.hasOwn(routes, targetLang) ? routes[targetLang] : {};
+    return Object.hasOwn(routeMap, originalRoute)
+        ? routeMap[originalRoute]
+        : originalRoute;
 }

@@ -9,22 +9,24 @@ import Counter from "@components/Counter.svelte";
 export function getStaticPaths() {
     return [
         // English route: /dynamic-routing/subpage-1
+        // [dyn_routing] = "dynamic-routing" is a single path segment
         // [...subpage1] = "subpage-1" captures the specific subpage
         // This creates the final URL: /dynamic-routing/subpage-1
         {
             params: {
-                dyn_routing: "/dynamic-routing",
+                dyn_routing: "dynamic-routing",
                 subpage1: "subpage-1",
             },
             props: { lang: "en" },
         },
         // Slovenian route: /sl/dinamicno-usmerjanje/podstran-1
-        // [...subpage1] = "podstran-1" captures the localized subpage name
+        // [dyn_routing] = "sl" acts as language prefix in URL
+        // [...subpage1] = "dinamicno-usmerjanje/podstran-1" (a rest param can span several segments)
         // This creates the final URL: /sl/dinamicno-usmerjanje/podstran-1
         {
             params: {
-                dyn_routing: "/sl/dinamicno-usmerjanje",
-                subpage1: "podstran-1",
+                dyn_routing: "sl",
+                subpage1: "dinamicno-usmerjanje/podstran-1",
             },
             props: { lang: "sl" },
         },
@@ -45,7 +47,7 @@ const t = useTranslations(lang);
         keywords: t("routing:subpages.subpage-1.keywords"),
     }}
 >
-    <section id="md-content">
+    <section class="md-content">
         <h1>{t("routing:subpages.subpage-1.title")}</h1>
         <p set:html={t("routing:subpages.subpage-1.description")} />
 
@@ -57,29 +59,31 @@ const t = useTranslations(lang);
 export function getStaticPaths() {
     return [
         // English route: /dynamic-routing/subpage-1
+        // [dyn_routing] = "dynamic-routing" is a single path segment
         // [...subpage1] = "subpage-1" captures the specific subpage
         // This creates the final URL: /dynamic-routing/subpage-1
         {
             params: {
-                dyn_routing: "/dynamic-routing",
+                dyn_routing: "dynamic-routing",
                 subpage1: "subpage-1",
             },
             props: { lang: "en" },
         },
         // Slovenian route: /sl/dinamicno-usmerjanje/podstran-1
-        // [...subpage1] = "podstran-1" captures the localized subpage name
+        // [dyn_routing] = "sl" acts as language prefix in URL
+        // [...subpage1] = "dinamicno-usmerjanje/podstran-1" (a rest param can span several segments)
         // This creates the final URL: /sl/dinamicno-usmerjanje/podstran-1
         {
             params: {
-                dyn_routing: "/sl/dinamicno-usmerjanje",
-                subpage1: "podstran-1",
+                dyn_routing: "sl",
+                subpage1: "dinamicno-usmerjanje/podstran-1",
             },
             props: { lang: "sl" },
         },
     ];
 }`}</code></pre>
     </section>
-    <section aria-label={t("component:title")} id="md-content">
+    <section aria-label={t("component:title")} class="md-content">
         <h2>{t("component:title")}</h2>
         <p set:html={t("component:description")} />
         <Counter

@@ -97,7 +97,9 @@ const authors = authorsRaw.map((a) => ({
                                     class="image"
                                     loading="lazy"
                                     quality={"high"}
-                                    sizes="(min-width: 1024px) 800px, 100vw"
+                                    layout="constrained"
+                                    width={768}
+                                    sizes="(min-width: 768px) 368px, 100vw"
                                     transition:name={`${post.data.title}-image`}
                                 />
                                 <div class="text">
@@ -112,6 +114,7 @@ const authors = authorsRaw.map((a) => ({
                                                 alt={author.data.name}
                                                 height={36}
                                                 width={36}
+                                                layout="fixed"
                                                 loading="lazy"
                                                 quality={"high"}
                                                 class="rounded-full"

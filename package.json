@@ -1,7 +1,7 @@
 {
     "name": "astro-i18n-starter",
     "private": true,
-    "version": "1.2.4",
+    "version": "1.2.6",
     "type": "module",
     "description": "Multilingual Astro starter with URL localization and i18n support",
     "author": {
@@ -25,7 +25,7 @@
         "static-site-generator"
     ],
     "engines": {
-        "node": ">=22.12.0"
+        "node": ">=22.22.0"
     },
     "scripts": {
         "dev": "astro dev",
@@ -35,19 +35,19 @@
         "astro": "astro"
     },
     "dependencies": {
-        "@astrojs/cloudflare": "^14.3.1",
-        "@astrojs/mdx": "^8.0.1",
+        "@astrojs/cloudflare": "^14.4.0",
+        "@astrojs/mdx": "^8.1.0",
         "@astrojs/sitemap": "^3.7.4",
-        "@astrojs/svelte": "^9.0.1",
+        "@astrojs/svelte": "^9.1.0",
         "@tailwindcss/vite": "^4.3.3",
-        "astro": "^7.3.2",
-        "sharp": "^0.35.4",
-        "svelte": "^5.57.0",
+        "astro": "^7.4.0",
+        "sharp": "^0.35.5",
+        "svelte": "^5.57.2",
         "tailwindcss": "^4.3.3",
         "typescript": "^6.0.3"
     },
     "devDependencies": {
         "@astrojs/check": "^0.9.10",
-        "wrangler": "^4.131.1"
+        "wrangler": "^4.151.1"
     }
 }

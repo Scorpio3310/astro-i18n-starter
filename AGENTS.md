@@ -31,7 +31,7 @@ Gotchas (checked on Astro 7.4):
 - Trailing slashes: Cloudflare (also `pnpm preview`) answers `/sl/o-projektu` with a 307 to `/sl/o-projektu/`. Internal links and hreflang have no trailing slash (except home URLs such as `/sl/`); the sitemap, canonical and `og:url` (from `Astro.url`) do. Known open issue; don't change trailing-slash handling unless asked.
 - The first `pnpm dev` after a dependency or config change can fail once with a missing chunk under `node_modules/.vite/deps_ssr/` (Vite re-optimizes deps). Restart the dev server; it is not a project bug.
 - Without `PRODUCTION_DOMAIN`, `site` falls back to `http://localhost:4321` and `robots.txt` disallows everything. That is expected for local builds. `.env.example` holds a placeholder domain, so an unedited copy makes `robots.txt` allow crawling and points canonical, hreflang and the sitemap at `your-domain.com`.
-- pnpm 11 blocks dependency build scripts that are not approved: `allowBuilds` in `pnpm-workspace.yaml` approves `esbuild` and `workerd`. Add any new dependency that needs a build script there.
+- pnpm 11 blocks dependency build scripts that are not approved: `allowBuilds` in `pnpm-workspace.yaml` approves `esbuild` and `workerd`. Add any new dependency that needs a build script there. Keep `packages: ["."]` in that file: Cloudflare Workers Builds installs with pnpm 9, which rejects a `pnpm-workspace.yaml` without `packages` ("packages field missing or empty").
 
 ## Project map
 
@@ -39,7 +39,7 @@ Gotchas (checked on Astro 7.4):
 | --- | --- |
 | `astro.config.mjs` | `site` from `PRODUCTION_DOMAIN` (Vite `loadEnv`), integrations (mdx, sitemap, svelte), Tailwind Vite plugin, Cloudflare adapter, `session: false` |
 | `wrangler.jsonc` | Worker `name` (`astro-i18n-starter-routing-helper`), compatibility date, static assets from `./dist/client` |
-| `pnpm-workspace.yaml` | `allowBuilds` for dependency build scripts (`esbuild`, `workerd`) |
+| `pnpm-workspace.yaml` | `packages: ["."]` (required by pnpm 9 on Cloudflare Workers Builds) and `allowBuilds` for dependency build scripts (`esbuild`, `workerd`) |
 | `src/i18n/ui.ts` | `languages`, `locales` (BCP-47 tags), `defaultLang`, `showDefaultLang`, and `ui` (every locale JSON, loaded with `import.meta.glob`) |
 | `src/i18n/routes.ts` | Per-language URL segment translations (`routes.sl.about = "o-projektu"`). Keys are English segments, so English has no entry |
 | `src/i18n/utils.ts` | `getLangFromUrl`, `useTranslations`, `useTranslatedPath`, `buildLocalizedStaticPaths`, `switchLanguageUrl`, `buildContentLinks` |

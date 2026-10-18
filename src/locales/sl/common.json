@@ -11,6 +11,7 @@
             "pagination": "Paginacija",
             "contact": "Kontakt"
         },
+        "toggle": "Odpri ali zapri meni",
         "languagesText": {
             "selectLanguage": "Izberi Jezik"
         },

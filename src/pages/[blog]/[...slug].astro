@@ -66,24 +66,24 @@ const { Content } = await render(post);
     title={post?.data?.title}
     meta={{
         description: post?.data?.description,
+        keywords: post?.data?.keywords,
         image: post?.data?.image?.src,
     }}
 >
-    <section role="main" aria-labelledby="article-title">
+    <section aria-labelledby="article-title">
         <article
-            role="article"
             aria-labelledby="article-title"
             aria-describedby="article-meta"
         >
-            <!--Main Article Image-->
+            {/* Main article image (above the fold: priority sets eager/sync/high) */}
             <Image
                 src={post?.data?.image}
                 alt={post.data.imageAlt || post.data.title}
                 class="mb-10"
-                loading="eager"
+                priority
                 quality={"high"}
-                sizes="(min-width: 1024px) 800px, 100vw"
-                role="img"
+                layout="constrained"
+                width={768}
                 transition:name={`${post.data.title}-image`}
             />
 
@@ -92,7 +92,7 @@ const { Content } = await render(post);
                 {post?.data?.title}
             </h1>
 
-            <div id="article-meta" class="author-time" role="contentinfo">
+            <div id="article-meta" class="author-time">
                 {
                     author && (
                         <div class="author" role="group">
@@ -101,10 +101,9 @@ const { Content } = await render(post);
                                 alt={author.data.name}
                                 height={36}
                                 width={36}
-                                loading="eager"
+                                layout="fixed"
                                 quality={"high"}
                                 class="rounded-full"
-                                role="img"
                             />
                             <div>
                                 <h3>{author.data.name}</h3>
@@ -128,7 +127,7 @@ const { Content } = await render(post);
             </div>
 
             <!--Markdown Content-->
-            <section id="md-content" role="main">
+            <section class="md-content">
                 <Content />
             </section>
         </article>

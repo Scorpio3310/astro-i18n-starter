@@ -11,6 +11,7 @@
             "pagination": "Pagination",
             "contact": "Contact"
         },
+        "toggle": "Toggle navigation menu",
         "languagesText": {
             "selectLanguage": "Select Language"
         },

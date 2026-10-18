@@ -66,11 +66,6 @@ header {
         }
     }
 
-    /* Mobile menu checkbox (hidden) */
-    .mobile-menu-checkbox {
-        @apply hidden;
-    }
-
     /* Mobile menu button */
     .mobile-menu-toggle {
         @apply flex flex-col justify-center items-center w-8 h-8 space-y-1 cursor-pointer lg:hidden;
@@ -80,16 +75,16 @@ header {
         }
     }
 
-    /* Hamburger → X animation when checked */
-    .mobile-menu-checkbox:checked ~ div .mobile-menu-toggle span:nth-child(1) {
+    /* Hamburger → X animation when expanded */
+    .mobile-menu-toggle[aria-expanded="true"] span:nth-child(1) {
         @apply transform rotate-45 translate-y-1.5;
     }
 
-    .mobile-menu-checkbox:checked ~ div .mobile-menu-toggle span:nth-child(2) {
+    .mobile-menu-toggle[aria-expanded="true"] span:nth-child(2) {
         @apply opacity-0;
     }
 
-    .mobile-menu-checkbox:checked ~ div .mobile-menu-toggle span:nth-child(3) {
+    .mobile-menu-toggle[aria-expanded="true"] span:nth-child(3) {
         @apply transform -rotate-45 -translate-y-1.5;
     }
 
@@ -98,9 +93,20 @@ header {
         @apply hidden w-full lg:flex lg:items-center lg:gap-8 lg:justify-end;
     }
 
-    /* Show nav when checkbox is checked */
-    .mobile-menu-checkbox:checked ~ .nav-main {
-        @apply flex flex-col lg:flex-row mt-4;
+    /* Show nav when the menu button is expanded */
+    &[data-menu-open] .nav-main {
+        @apply flex flex-col lg:flex-row mt-4 lg:mt-0;
+    }
+
+    /* Without JavaScript the toggle cannot work: always show the navigation */
+    @media (scripting: none) {
+        .nav-main {
+            @apply flex flex-col lg:flex-row mt-4 lg:mt-0;
+        }
+
+        .mobile-menu-toggle {
+            @apply hidden;
+        }
     }
 
     .nav-list {
@@ -115,8 +121,10 @@ header {
         @apply py-2 lg:py-0 cursor-pointer no-underline hover:opacity-50;
     }
 
+    /* Closed desktop dropdown is transparent instead of display:none, so its links
+       stay in the tab order and both Tab and Shift+Tab reach them */
     .nav-dropdown {
-        @apply lg:hidden lg:absolute lg:top-full lg:left-0 lg:bg-white lg:border lg:border-gray-300 lg:p-2 lg:min-w-32 lg:shadow-md space-y-4 lg:space-y-0;
+        @apply lg:opacity-0 lg:pointer-events-none lg:absolute lg:top-full lg:left-0 lg:bg-white lg:border lg:border-gray-300 lg:p-2 lg:min-w-32 lg:shadow-md space-y-4 lg:space-y-0;
     }
 
     .nav-dropdown-link {
@@ -127,9 +135,10 @@ header {
         @apply flex flex-col lg:flex-row items-center mt-4 lg:mt-0 gap-4 lg:gap-6;
     }
 
-    /* Custom hover za dropdown */
-    .nav-item:hover .nav-dropdown {
-        @apply block;
+    /* Dropdown opens on hover and when a link inside it has keyboard focus */
+    .nav-item:hover .nav-dropdown,
+    .nav-item:focus-within .nav-dropdown {
+        @apply lg:opacity-100 lg:pointer-events-auto;
     }
 }
 

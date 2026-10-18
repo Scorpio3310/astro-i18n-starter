@@ -88,7 +88,7 @@ const translatePath = useTranslatedPath(lang);
         keywords: t("blog:head.keywords"),
     }}
 >
-    <section role="main" aria-labelledby="blog-title">
+    <section aria-labelledby="blog-title">
         <!-- Page Header -->
         <div>
             <h1 id="blog-title">{t("blog:title")}</h1>
@@ -122,7 +122,6 @@ const translatePath = useTranslatedPath(lang);
                         return (
                             <article
                                 class="card-blog"
-                                role="article"
                                 aria-labelledby={`${postId}-title`}
                                 aria-describedby={`${postId}-excerpt`}
                             >
@@ -139,8 +138,9 @@ const translatePath = useTranslatedPath(lang);
                                         class="image"
                                         loading="lazy"
                                         quality={"high"}
-                                        sizes="(min-width: 1024px) 800px, 100vw"
-                                        role="img"
+                                        layout="constrained"
+                                        width={768}
+                                        sizes="(min-width: 768px) 368px, 100vw"
                                         transition:name={`${post.data.title}-image`}
                                     />
                                     <div class="text">
@@ -163,10 +163,10 @@ const translatePath = useTranslatedPath(lang);
                                                     alt={author.data.name}
                                                     height={36}
                                                     width={36}
+                                                    layout="fixed"
                                                     loading="lazy"
                                                     quality={"mid"}
                                                     class="rounded-full"
-                                                    role="img"
                                                 />
                                                 <div>
                                                     <h3>{author.data.name}</h3>

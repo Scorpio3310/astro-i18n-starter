@@ -9,7 +9,7 @@ import { getCollection } from "astro:content";
  */
 export function getLangFromUrl(url: URL) {
     const [, lang] = url.pathname.split("/");
-    if (lang in ui) return lang as keyof typeof ui;
+    if (Object.hasOwn(ui, lang)) return lang as keyof typeof ui;
     return defaultLang;
 }
 
@@ -64,11 +64,12 @@ export function useTranslatedPath(lang: keyof typeof ui) {
         // Split path into segments
         const segments = path.split("/").filter((segment) => segment);
 
-        // Translate each segment individually
-        const translatedSegments = segments.map((segment) => {
-            const translated = routes[l]?.[segment];
-            return translated ?? segment;
-        });
+        // Translate each segment individually (own properties only, so a URL
+        // segment like "constructor" never resolves to Object.prototype)
+        const routeMap = Object.hasOwn(routes, l) ? routes[l] : {};
+        const translatedSegments = segments.map((segment) =>
+            Object.hasOwn(routeMap, segment) ? routeMap[segment] : segment
+        );
 
         const translatedPath = "/" + translatedSegments.join("/");
 
@@ -152,7 +153,7 @@ export async function switchLanguageUrl(
 
     // Remove current language prefix if it exists (for both default and non-default)
     const currentLang = getLangFromUrl(currentUrl);
-    if (pathParts[0] && pathParts[0] in ui) {
+    if (pathParts[0] && Object.hasOwn(ui, pathParts[0])) {
         pathParts.shift();
     }
 
@@ -315,5 +316,8 @@ function getOriginalRouteName(routeName: string): string {
  */
 function translateRouteName(routeName: string, targetLang: string): string {
     const originalRoute = getOriginalRouteName(routeName);
-    return routes[targetLang]?.[originalRoute] || originalRoute;
+    const routeMap = Object.hasOwn(routes, targetLang) ? routes[targetLang] : {};
+    return Object.hasOwn(routeMap, originalRoute)
+        ? routeMap[originalRoute]
+        : originalRoute;
 }

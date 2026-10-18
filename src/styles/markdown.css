@@ -1,11 +1,7 @@
-@import "tailwindcss";
+/* Reuse the global Tailwind theme without emitting a second copy of Tailwind */
+@reference "./global.css";
 
-@theme {
-    --color-main: #111111;
-    --color-primary: #6c24d8;
-}
-
-#md-content {
+.md-content {
     h2 {
         @apply text-2xl md:text-3xl font-bold mb-4 wrap-anywhere;
     }

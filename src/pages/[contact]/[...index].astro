@@ -30,7 +30,6 @@ const t = useTranslations(lang);
         <form
             name="Contact Form"
             method="POST"
-            role="form"
             aria-labelledby="form-heading"
             data-validation={JSON.stringify({
                 nameRequired: t("contact:validation.nameRequired"),
@@ -182,8 +181,12 @@ const t = useTranslations(lang);
         }
     }
 
-    const form = document.querySelector("form[name='Contact Form']") as HTMLFormElement | null;
-    if (form) {
+    // Bundled scripts run only once, but <ClientRouter /> swaps in a fresh form on
+    // every navigation, so bind on astro:page-load (fires on first load and after each swap)
+    function initContactForm() {
+        const form = document.querySelector("form[name='Contact Form']") as HTMLFormElement | null;
+        if (!form) return;
+
         const t = JSON.parse(form.dataset.validation || "{}");
 
         // Live validation on blur
@@ -265,14 +268,13 @@ const t = useTranslations(lang);
             }
         });
     }
+
+    document.addEventListener("astro:page-load", initContactForm);
 </script>
 
 <style>
-    @import "tailwindcss";
-
-    @theme {
-        --color-primary: #6c24d8;
-    }
+    /* Reuse the global Tailwind theme without emitting a second copy of Tailwind */
+    @reference "../../styles/global.css";
 
     form {
         @apply space-y-4 max-w-4xl mx-auto pt-8;

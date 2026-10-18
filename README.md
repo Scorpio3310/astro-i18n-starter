@@ -91,6 +91,26 @@ Visit `http://localhost:4321` to see your multilingual site!
 
 ---
 
+## 🤖 Using with AI Coding Agents
+
+Start a new project with the official Astro CLI. Without a `#<branch>` suffix you get `main`; add `#feat/i18n-routing-helper` for the helper-based branch:
+
+```bash
+# main (this branch)
+pnpm create astro@latest --template Scorpio3310/astro-i18n-starter --no-ai
+
+# feat/i18n-routing-helper
+pnpm create astro@latest --template Scorpio3310/astro-i18n-starter#feat/i18n-routing-helper --no-ai
+```
+
+With npm, add `--` before the flags: `npm create astro@latest -- --template Scorpio3310/astro-i18n-starter --no-ai`.
+
+`--no-ai` keeps this starter's `AGENTS.md`; without it, create-astro replaces it with Astro's generic one.
+
+[`AGENTS.md`](AGENTS.md) holds the project rules for AI coding agents: commands, how the i18n routing works on this branch, step-by-step recipes (new page, route segment, translations, blog post, nav item, new language), conventions, the checks to run before finishing, and a "clean start" checklist for replacing the demo content. Agents that support `AGENTS.md` (Codex, Cursor, GitHub Copilot, …) read it automatically; [`CLAUDE.md`](CLAUDE.md) imports it for Claude Code. A prompt like _"Follow AGENTS.md and do a clean start for my site"_ is enough to begin.
+
+---
+
 ## 📁 Project Structure
 
 ```
